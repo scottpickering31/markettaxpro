@@ -12,6 +12,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
             </a>
             <p>Welcome</p>
             <nav className="flex gap-4 text-sm">
+              <a href="/app">Home</a>
               <a href="/app/costs">Costs</a>
               <a href="/app/transactions">Transactions</a>
               <a href="/app/summary">Summary</a>
