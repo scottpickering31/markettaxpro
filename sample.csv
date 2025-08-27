@@ -1,0 +1,8 @@
+date,order_id,type,amount,currency,notes
+2025-04-10,ORD1,sale,25.00,GBP,"Mug"
+2025-04-10,ORD1,fee,-2.50,GBP,"Platform fee"
+2025-04-10,ORD1,shipping_income,3.00,GBP,"Buyer paid postage"
+2025-04-10,ORD1,shipping_label,-3.20,GBP,"Postage"
+2025-04-11,ORD2,sale,15.00,GBP,"Book"
+2025-04-11,ORD2,fee,-1.50,GBP,"Platform fee"
+2025-04-12,ORD3,refund,-15.00,GBP,"Refunded book"
