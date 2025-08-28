@@ -1,4 +1,4 @@
-import { formatGBP } from "@/lib/calc/summary";
+import { formatGBP } from "@/src/lib/calc/summary";
 
 export default async function DashboardPage() {
   // Placeholder totals (Batch B will query DB)

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
-import { requireUser } from "@/lib/auth";
-import { insertTransactions, recomputeYearSummary } from "@/lib/db/queries";
-import { currentTaxYear } from "@/lib/dates";
+import { requireUser } from "@/src/lib/auth";
+import { insertTransactions, recomputeYearSummary } from "@/src/lib/db/queries";
+import { currentTaxYear } from "@/src/lib/dates";
 
 export async function POST() {
   const user = await requireUser();

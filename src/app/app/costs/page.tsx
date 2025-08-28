@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import ReceiptUploader from "@/components/upload/ReceiptUploader";
+import ReceiptUploader from "@/src/components/upload/ReceiptUploader";
 
 type Item = {
   id: string;

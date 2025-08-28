@@ -1,9 +1,9 @@
 // app/api/export/pdf/route.ts
 import { NextResponse } from "next/server";
-import { getUserInRoute } from "@/lib/auth-route";
-import { currentTaxYear } from "@/lib/dates";
-import { listYearSummary, recomputeYearSummary } from "@/lib/db/queries";
-import { buildSummaryPdf } from "@/lib/pdf/template";
+import { getUserInRoute } from "@/src/lib/auth-route";
+import { currentTaxYear } from "@/src/lib/dates";
+import { listYearSummary, recomputeYearSummary } from "@/src/lib/db/queries";
+import { buildSummaryPdf } from "@/src/lib/pdf/template";
 
 export const runtime = "nodejs";
 

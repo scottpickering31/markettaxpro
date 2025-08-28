@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getRouteSupabase } from "@/lib/supabase/server";
+import { getRouteSupabase } from "@/src/lib/supabase/server";
 
 export async function GET(request: Request) {
   const supabase = getRouteSupabase();

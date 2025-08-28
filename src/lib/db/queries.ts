@@ -1,5 +1,5 @@
-import { getRouteSupabase } from "@/lib/supabase/server";
-import { Summary, Transaction } from "@/lib/supabase/types";
+import { getRouteSupabase } from "@/src/lib/supabase/server";
+import { Summary, Transaction } from "@/src/lib/supabase/types";
 import { format } from "date-fns";
 
 export async function upsertProfile(userId: string, email: string) {

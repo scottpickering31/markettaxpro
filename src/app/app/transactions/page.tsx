@@ -1,7 +1,7 @@
-import { requireUser } from "@/lib/auth";
-import { listTransactions } from "@/lib/db/queries";
-import { currentTaxYear, taxYearRange, inRangeISO } from "@/lib/dates";
-import TransactionsTable from "@/components/tables/TransactionsTable";
+import { requireUser } from "@/src/lib/auth";
+import { listTransactions } from "@/src/lib/db/queries";
+import { currentTaxYear, taxYearRange, inRangeISO } from "@/src/lib/dates";
+import TransactionsTable from "@/src/components/tables/TransactionsTable";
 
 export default async function TransactionsPage() {
   const user = await requireUser();

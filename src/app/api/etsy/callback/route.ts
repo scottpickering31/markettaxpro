@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { getRouteSupabase } from "@/lib/supabase/server";
-import { requireUser } from "@/lib/auth";
+import { getRouteSupabase } from "@/src/lib/supabase/server";
+import { requireUser } from "@/src/lib/auth";
 
 export async function GET(req: Request) {
   const user = await requireUser();

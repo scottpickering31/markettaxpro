@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { getRouteSupabase } from "@/lib/supabase/server";
-import { requireUser } from "@/lib/auth";
+import { getRouteSupabase } from "@/src/lib/supabase/server";
+import { requireUser } from "@/src/lib/auth";
 
 export async function GET(req: Request) {
   const user = await requireUser();
@@ -13,7 +13,7 @@ export async function GET(req: Request) {
   await supabase.from("marketplace_accounts").insert({
     user_id: user.id,
     platform: "ebay",
-    seller_id: null
+    seller_id: null,
   });
 
   return NextResponse.redirect("/(app)/connect?ebay=connected");

@@ -1,16 +1,16 @@
 import { NextResponse } from "next/server";
-import { parseSalesCsv } from "@/lib/csv/parse";
+import { parseSalesCsv } from "@/src/lib/csv/parse";
 import crypto from "crypto";
-import { getRouteSupabase } from "@/lib/supabase/server";
-import { requireUser } from "@/lib/auth";
-import { mapDepopCsv } from "@/lib/etl/mapDepopCsv";
-import { mapVintedCsv } from "@/lib/etl/mapVintedCsv";
+import { getRouteSupabase } from "@/src/lib/supabase/server";
+import { requireUser } from "@/src/lib/auth";
+import { mapDepopCsv } from "@/src/lib/etl/mapDepopCsv";
+import { mapVintedCsv } from "@/src/lib/etl/mapVintedCsv";
 import {
   insertTransactions,
   recomputeYearSummary,
   upsertProfile,
-} from "@/lib/db/queries";
-import { currentTaxYear } from "@/lib/dates";
+} from "@/src/lib/db/queries";
+import { currentTaxYear } from "@/src/lib/dates";
 
 export const runtime = "nodejs";
 

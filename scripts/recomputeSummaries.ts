@@ -3,8 +3,8 @@
  * Run with: tsx scripts/recomputeSummaries.ts <userId>
  */
 import "dotenv/config";
-import { recomputeYearSummary } from "@/lib/db/queries";
-import { currentTaxYear } from "@/lib/dates";
+import { recomputeYearSummary } from "@/src/lib/db/queries";
+import { currentTaxYear } from "@/src/lib/dates";
 
 const userId = process.argv[2];
 if (!userId) {

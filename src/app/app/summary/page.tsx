@@ -1,8 +1,8 @@
-import { requireUser } from "@/lib/auth";
-import { listYearSummary, recomputeYearSummary } from "@/lib/db/queries";
-import { currentTaxYear } from "@/lib/dates";
-import { computeSummary, formatGBP } from "@/lib/calc/summary";
-import { sumExpenses } from "@/lib/calc/expenses";
+import { requireUser } from "@/src/lib/auth";
+import { listYearSummary, recomputeYearSummary } from "@/src/lib/db/queries";
+import { currentTaxYear } from "@/src/lib/dates";
+import { computeSummary, formatGBP } from "@/src/lib/calc/summary";
+import { sumExpenses } from "@/src/lib/calc/expenses";
 
 export default async function SummaryPage() {
   const user = await requireUser();

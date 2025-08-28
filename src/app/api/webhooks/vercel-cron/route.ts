@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
-import { getRouteSupabase } from "@/lib/supabase/server";
-import { recomputeYearSummary } from "@/lib/db/queries";
-import { currentTaxYear } from "@/lib/dates";
+import { getRouteSupabase } from "@/src/lib/supabase/server";
+import { recomputeYearSummary } from "@/src/lib/db/queries";
+import { currentTaxYear } from "@/src/lib/dates";
 
 // Vercel cron can call this endpoint nightly
 export async function GET() {

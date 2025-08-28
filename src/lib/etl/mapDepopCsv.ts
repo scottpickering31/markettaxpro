@@ -1,8 +1,9 @@
-import { NormalizedRow } from "@/lib/csv/parse";
+import { NormalizedRow } from "@/src/lib/csv/parse";
 
-export function mapVintedCsv(rows: NormalizedRow[]) {
+// Adjust if Depop headers differ in your export
+export function mapDepopCsv(rows: NormalizedRow[]) {
   return rows.map((r) => ({
-    platform: "vinted" as const,
+    platform: "depop" as const,
     order_id: r.orderId,
     cash_date: r.date.slice(0, 10),
     type: r.type,

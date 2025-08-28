@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
-import { requireUser } from "@/lib/auth";
-import { ManualExpenseSchema, toPence } from "@/lib/validators/expenses";
-import { addManualExpense } from "@/lib/db/expenses";
-import { recomputeYearSummary } from "@/lib/db/queries";
-import { currentTaxYear } from "@/lib/dates";
+import { requireUser } from "@/src/lib/auth";
+import { ManualExpenseSchema, toPence } from "@/src/lib/validators/expenses";
+import { addManualExpense } from "@/src/lib/db/expenses";
+import { recomputeYearSummary } from "@/src/lib/db/queries";
+import { currentTaxYear } from "@/src/lib/dates";
 
 export async function POST(req: Request) {
   const user = await requireUser();
