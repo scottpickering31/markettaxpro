@@ -1,4 +1,4 @@
-import { NormalizedRow } from "@/src/lib/csv/parse";
+import { NormalizedRow } from "@/lib/csv/parse";
 
 export function mapVintedCsv(rows: NormalizedRow[]) {
   return rows.map((r) => ({

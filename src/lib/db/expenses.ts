@@ -1,4 +1,4 @@
-import { getRouteSupabase } from "@/src/lib/supabase/server";
+import { getRouteSupabase } from "@/lib/supabase/server";
 
 export async function addManualExpense(
   userId: string,

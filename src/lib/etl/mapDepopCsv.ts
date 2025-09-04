@@ -1,4 +1,4 @@
-import { NormalizedRow } from "@/src/lib/csv/parse";
+import { NormalizedRow } from "@/lib/csv/parse";
 
 // Adjust if Depop headers differ in your export
 export function mapDepopCsv(rows: NormalizedRow[]) {

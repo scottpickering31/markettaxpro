@@ -1,9 +1,10 @@
-import { getRouteSupabase } from "@/src/lib/supabase/server";
-import { Summary, Transaction } from "@/src/lib/supabase/types";
+// import { getServerSupabase } from "@/lib/supabase/server";
+import { getServerSupabase } from "@/lib/supabase/server";
+import { Summary, Transaction } from "@/lib/supabase/types";
 import { format } from "date-fns";
 
 export async function upsertProfile(userId: string, email: string) {
-  const supabase = getRouteSupabase();
+  const supabase = getServerSupabase();
   await supabase
     .from("profiles")
     .upsert({ id: userId, email })
@@ -15,7 +16,7 @@ export async function insertTransactions(
   userId: string,
   rows: Omit<Transaction, "id" | "created_at">[]
 ) {
-  const supabase = getRouteSupabase();
+  const supabase = getServerSupabase();
   const insertRows = rows.map((r) => ({ ...r, user_id: userId }));
   const { error } = await supabase.from("transactions").insert(insertRows);
   if (error) throw new Error(error.message);
@@ -25,7 +26,7 @@ export async function listTransactions(
   userId: string,
   taxYear: string
 ): Promise<Transaction[]> {
-  const supabase = getRouteSupabase();
+  const supabase = getServerSupabase();
   const { data, error } = await supabase
     .from("transactions")
     .select("*")
@@ -37,7 +38,7 @@ export async function listTransactions(
 }
 
 export async function recomputeYearSummary(userId: string, taxYear: string) {
-  const supabase = getRouteSupabase();
+  const supabase = getServerSupabase();
 
   const { data, error } = await supabase
     .from("transactions")
@@ -110,7 +111,7 @@ export async function recomputeYearSummary(userId: string, taxYear: string) {
 }
 
 export async function listYearSummary(userId: string, taxYear: string) {
-  const supabase = getRouteSupabase();
+  const supabase = getServerSupabase();
   const { data } = await supabase
     .from("summaries")
     .select("*")

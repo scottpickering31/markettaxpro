@@ -1,12 +1,13 @@
+// lib/supabase/server.ts
 import { cookies } from "next/headers";
 import {
   createServerComponentClient,
   createRouteHandlerClient,
 } from "@supabase/auth-helpers-nextjs";
-import { Database } from "./types"; // add later
+import { Database } from "./types";
 
 export const getServerSupabase = () =>
-  createServerComponentClient<Database>({ cookies });
+  createServerComponentClient<Database>({ cookies: () => cookies() });
 
 export const getRouteSupabase = () =>
-  createRouteHandlerClient<Database>({ cookies });
+  createRouteHandlerClient<Database>({ cookies: () => cookies() });
