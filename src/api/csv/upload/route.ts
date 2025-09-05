@@ -64,10 +64,10 @@ export async function POST(req: Request) {
     await recomputeYearSummary(user.id, currentTaxYear());
 
     return NextResponse.json({ rows: mapped.length });
-  } catch (err: any) {
-    return NextResponse.json(
-      { error: err?.message ?? "Upload failed" },
-      { status: 500 }
-    );
+  } catch (err: unknown) {
+    if (err instanceof Error) {
+      return NextResponse.json({ error: err.message }, { status: 500 });
+    }
+    return NextResponse.json({ error: "Upload failed" }, { status: 500 });
   }
 }

@@ -16,7 +16,7 @@ export default async function TransactionsPage() {
       <p className="text-sm text-gray-600">
         Showing {inYear.length} rows for {taxYear}
       </p>
-      <TransactionsTable rows={inYear as any} />
+      <TransactionsTable rows={inYear} />
     </div>
   );
 }

@@ -9,7 +9,7 @@ export const runtime = "nodejs";
 
 export async function GET() {
   try {
-        const user = await getUserInRoute();
+    const user = await getUserInRoute();
     if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
@@ -49,7 +49,7 @@ export async function GET() {
         "Content-Disposition": `attachment; filename="summary-${year}.pdf"`,
       },
     });
-  } catch (err: any) {
+  } catch (err: unknown) {
     console.error("PDF export failed:", err);
     return NextResponse.json({ error: "PDF export failed" }, { status: 500 });
   }
