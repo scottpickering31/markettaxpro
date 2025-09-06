@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth";
-import { getRouteSupabase } from "@/lib/supabase/server";
+import { createClient } from "@/lib/supabase/server";
 
 export async function POST(req: Request) {
   const user = await requireUser();
@@ -8,7 +8,7 @@ export async function POST(req: Request) {
   if (!Array.isArray(ids) || typeof is_personal !== "boolean") {
     return NextResponse.json({ error: "Invalid payload" }, { status: 400 });
   }
-  const supabase = getRouteSupabase();
+  const supabase = await createClient();
   const { error } = await supabase
     .from("transactions")
     .update({ is_personal })

@@ -1,10 +1,10 @@
 import { NextResponse } from "next/server";
 import { requireUser } from "@/lib/auth";
-import { getRouteSupabase } from "@/lib/supabase/server";
+import { createClient } from "@/lib/supabase/server";
 
 export async function GET() {
   const user = await requireUser();
-  const supabase = getRouteSupabase();
+  const supabase = await createClient();
   const { data, error } = await supabase
     .from("manual_expenses")
     .select("*")

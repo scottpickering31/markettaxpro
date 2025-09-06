@@ -1,10 +1,16 @@
-// import { getServerSupabase } from "@/lib/supabase/server";
-import { getServerSupabase } from "@/lib/supabase/server";
-import { Summary, Transaction } from "@/lib/supabase/types";
-import { format } from "date-fns";
+import { createClient } from "@/lib/supabase/server";
+import type {
+  Tables,
+  TablesInsert,
+  TablesUpdate,
+} from "@/lib/supabase/database.types";
+
+type Transaction = Tables<"transactions">;
+type Summary = Tables<"summaries">;
+type Profile = Tables<"profiles">;
 
 export async function upsertProfile(userId: string, email: string) {
-  const supabase = getServerSupabase();
+  const supabase = await createClient();
   await supabase
     .from("profiles")
     .upsert({ id: userId, email })
@@ -14,9 +20,9 @@ export async function upsertProfile(userId: string, email: string) {
 
 export async function insertTransactions(
   userId: string,
-  rows: Omit<Transaction, "id" | "created_at">[]
+  rows: Omit<Transaction, "id" | "created_at" | "user_id">[]
 ) {
-  const supabase = getServerSupabase();
+  const supabase = await createClient();
   const insertRows = rows.map((r) => ({ ...r, user_id: userId }));
   const { error } = await supabase.from("transactions").insert(insertRows);
   if (error) throw new Error(error.message);
@@ -26,7 +32,7 @@ export async function listTransactions(
   userId: string,
   taxYear: string
 ): Promise<Transaction[]> {
-  const supabase = getServerSupabase();
+  const supabase = await createClient();
   const { data, error } = await supabase
     .from("transactions")
     .select("*")
@@ -38,7 +44,7 @@ export async function listTransactions(
 }
 
 export async function recomputeYearSummary(userId: string, taxYear: string) {
-  const supabase = getServerSupabase();
+  const supabase = await createClient();
 
   const { data, error } = await supabase
     .from("transactions")
@@ -97,6 +103,7 @@ export async function recomputeYearSummary(userId: string, taxYear: string) {
     cogs_pence: cogsTotal,
     manual_pence: manualTotal,
     profit_before_allowance_pence: profitBeforeAllowance,
+    updated_at: new Date().toISOString(),
   };
 
   const { error: upErr } = await supabase
@@ -111,7 +118,7 @@ export async function recomputeYearSummary(userId: string, taxYear: string) {
 }
 
 export async function listYearSummary(userId: string, taxYear: string) {
-  const supabase = getServerSupabase();
+  const supabase = await createClient();
   const { data } = await supabase
     .from("summaries")
     .select("*")

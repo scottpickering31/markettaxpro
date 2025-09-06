@@ -1,11 +1,11 @@
 import { NextResponse } from "next/server";
-import { getRouteSupabase } from "@/lib/supabase/server";
+import { createClient } from "@/lib/supabase/server";
 import { recomputeYearSummary } from "@/lib/db/queries";
 import { currentTaxYear } from "@/lib/dates";
 
 // Vercel cron can call this endpoint nightly
 export async function GET() {
-  const supabase = getRouteSupabase();
+  const supabase = await createClient();
   const { data: profiles } = await supabase.from("profiles").select("id");
   const year = currentTaxYear();
 

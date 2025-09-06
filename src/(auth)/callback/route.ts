@@ -1,8 +1,8 @@
 import { NextResponse } from "next/server";
-import { getRouteSupabase } from "@/lib/supabase/server";
+import { createClient } from "@/lib/supabase/server";
 
 export async function GET(request: Request) {
-  const supabase = getRouteSupabase();
+  const supabase = await createClient();
   const { searchParams } = new URL(request.url);
   const code = searchParams.get("code");
   if (code) {

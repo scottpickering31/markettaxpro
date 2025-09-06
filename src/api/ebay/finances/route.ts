@@ -1,13 +1,13 @@
 import { NextResponse } from "next/server";
 import { getUserInRoute } from "@/lib/auth-route";
-import { getRouteSupabase } from "@/lib/supabase/server";
+import { createClient } from "@/lib/supabase/server";
 
 export async function POST() {
   const user = await getUserInRoute();
   if (!user)
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const supabase = getRouteSupabase();
+  const supabase = await createClient();
   const { data: accounts } = await supabase
     .from("marketplace_accounts")
     .select("*")

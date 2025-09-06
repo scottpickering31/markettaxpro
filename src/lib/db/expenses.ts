@@ -1,4 +1,4 @@
-import { getRouteSupabase } from "@/lib/supabase/server";
+import { createClient } from "@/lib/supabase/server";
 
 export async function addManualExpense(
   userId: string,
@@ -9,7 +9,7 @@ export async function addManualExpense(
     note?: string;
   }
 ) {
-  const supabase = getRouteSupabase();
+  const supabase = await createClient();
   const { error } = await supabase.from("manual_expenses").insert({
     user_id: userId,
     date: input.date,
@@ -21,7 +21,7 @@ export async function addManualExpense(
 }
 
 export async function listManualExpenses(userId: string) {
-  const supabase = getRouteSupabase();
+  const supabase = await createClient();
   const { data, error } = await supabase
     .from("manual_expenses")
     .select("*")
@@ -42,7 +42,7 @@ export async function addCogs(
     notes?: string;
   }
 ) {
-  const supabase = getRouteSupabase();
+  const supabase = await createClient();
   const { error } = await supabase.from("cogs").insert({
     user_id: userId,
     method: input.method,
@@ -56,7 +56,7 @@ export async function addCogs(
 }
 
 export async function listCogs(userId: string) {
-  const supabase = getRouteSupabase();
+  const supabase = await createClient();
   const { data, error } = await supabase
     .from("cogs")
     .select("*")

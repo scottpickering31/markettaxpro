@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
-import { getRouteSupabase } from "@/lib/supabase/server";
+import { createClient } from "@/lib/supabase/server";
 import { requireUser } from "@/lib/auth";
 
 export const runtime = "nodejs";
 
 export async function POST(req: Request) {
   const user = await requireUser();
-  const supabase = getRouteSupabase();
+  const supabase = await createClient();
 
   const form = await req.formData();
   const file = form.get("file");

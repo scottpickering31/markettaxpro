@@ -155,6 +155,12 @@ function Th({ children }: { children: React.ReactNode }) {
     </th>
   );
 }
-function Td({ children }: { children: React.ReactNode }) {
-  return <td className="px-3 py-2">{children}</td>;
+function Td({
+  children,
+  className,
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) {
+  return <td className={`px-3 py-2 ${className ?? ""}`}>{children}</td>;
 }

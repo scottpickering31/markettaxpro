@@ -1,23 +1,20 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import type { Tables } from "@/lib/supabase/database.types";
 
-type Row = {
-  id: string;
-  cash_date: string;
-  platform: string;
-  type:
-    | "sale"
-    | "fee"
-    | "shipping_income"
-    | "shipping_label"
-    | "refund"
-    | "other_expense";
-  order_id: string | null;
-  amount_pence: number;
-  notes: string | null;
-  is_personal: boolean;
-};
+type DbRow = Tables<"transactions">;
+type Row = Pick<
+  DbRow,
+  | "id"
+  | "cash_date"
+  | "platform"
+  | "type"
+  | "order_id"
+  | "amount_pence"
+  | "notes"
+  | "is_personal"
+>;
 
 export default function TransactionsTable({ rows }: { rows: Row[] }) {
   const [query, setQuery] = useState("");
@@ -187,7 +184,7 @@ export default function TransactionsTable({ rows }: { rows: Row[] }) {
                 >
                   £{(r.amount_pence / 100).toFixed(2)}
                 </Td>
-                <Td>{r.is_personal ? "Yes" : "No"}</Td>
+                <Td>{!!r.is_personal ? "Yes" : "No"}</Td>
                 <Td>{r.notes ?? "-"}</Td>
               </tr>
             ))}

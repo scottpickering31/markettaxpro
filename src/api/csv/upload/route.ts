@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { parseSalesCsv } from "@/lib/csv/parse";
 import crypto from "crypto";
-import { getRouteSupabase } from "@/lib/supabase/server";
+import { createClient } from "@/lib/supabase/server";
 import { requireUser } from "@/lib/auth";
 import { mapDepopCsv } from "@/lib/etl/mapDepopCsv";
 import { mapVintedCsv } from "@/lib/etl/mapVintedCsv";
@@ -11,13 +11,14 @@ import {
   upsertProfile,
 } from "@/lib/db/queries";
 import { currentTaxYear } from "@/lib/dates";
+import type { TablesInsert } from "@/lib/supabase/database.types";
 
 export const runtime = "nodejs";
 
 export async function POST(req: Request) {
   try {
     const user = await requireUser();
-    const supabase = getRouteSupabase();
+    const supabase = await createClient();
 
     // ensure profile exists
     await upsertProfile(user.id, user.email ?? "user@example.com");
@@ -30,13 +31,16 @@ export async function POST(req: Request) {
     const buf = Buffer.from(await file.arrayBuffer());
     const sha = crypto.createHash("sha256").update(buf).digest("hex");
 
-    // Stage raw file record
-    await supabase.from("raw_files").insert({
+    const toInsert: TablesInsert<"raw_files"> = {
       user_id: user.id,
       filename: file.name,
       bytes: buf.byteLength,
       sha256: sha,
-    });
+    };
+
+    // Stage raw file record
+
+    await supabase.from("raw_files").insert(toInsert);
 
     const rows = parseSalesCsv(buf);
 

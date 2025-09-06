@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { getUserInRoute } from "@/lib/auth-route";
-import { getRouteSupabase } from "@/lib/supabase/server";
+import { createClient } from "@/lib/supabase/server";
 
 export async function GET(req: Request) {
   const user = await getUserInRoute();
@@ -30,7 +30,7 @@ export async function GET(req: Request) {
   });
   const token = await res.json();
 
-  const supabase = getRouteSupabase();
+  const supabase = await createClient();
   await supabase.from("marketplace_accounts").insert({
     user_id: user.id,
     platform: "ebay",

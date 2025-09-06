@@ -1,8 +1,8 @@
 // lib/auth-route.ts
-import { getRouteSupabase } from "@/lib/supabase/server";
+import { createClient } from "@/lib/supabase/server";
 
 export async function getUserInRoute() {
-  const supabase = getRouteSupabase();
+  const supabase = await createClient();
   const {
     data: { session },
     error,
