@@ -18,7 +18,7 @@ export async function GET(req: Request) {
       grant_type: "authorization_code",
       client_id: process.env.ETSY_CLIENT_ID!,
       client_secret: process.env.ETSY_CLIENT_SECRET!,
-      redirect_uri: `${process.env.NEXT_PUBLIC_APP_URL}/api/etsy/callback`,
+      redirect_uri: `${process.env.ETSY_REDIRECT_URI}`,
       code,
     }),
   });
