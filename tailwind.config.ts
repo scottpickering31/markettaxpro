@@ -5,9 +5,6 @@ export default {
     "./src/app/**/*.{ts,tsx}",
     "./src/components/**/*.{ts,tsx}",
     "./src/styles/**/*.{css}",
-    "./styles/**/*.{css}",
-    "./components/**/*.{css}",
-    "./app/**/*.{css}",
   ],
   theme: {
     extend: {
