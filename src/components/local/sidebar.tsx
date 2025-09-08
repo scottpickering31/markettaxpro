@@ -1,4 +1,12 @@
-import { Calendar, Home, Inbox, Search, Settings } from "lucide-react";
+import {
+  Home,
+  Upload,
+  ReceiptText,
+  Download,
+  Table,
+  Search,
+  Settings,
+} from "lucide-react";
 
 import {
   Sidebar,
@@ -11,33 +19,14 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 
-// Menu items.
 const items = [
-  {
-    title: "Home",
-    url: "#",
-    icon: Home,
-  },
-  {
-    title: "Inbox",
-    url: "#",
-    icon: Inbox,
-  },
-  {
-    title: "Calendar",
-    url: "#",
-    icon: Calendar,
-  },
-  {
-    title: "Search",
-    url: "#",
-    icon: Search,
-  },
-  {
-    title: "Settings",
-    url: "#",
-    icon: Settings,
-  },
+  { title: "Home", url: "/", icon: Home },
+  { title: "Import", url: "/connect", icon: Upload },
+  { title: "Costs", url: "/costs", icon: ReceiptText },
+  { title: "Export", url: "/export", icon: Download },
+  { title: "Transactions", url: "/transactions", icon: Table },
+  { title: "Search", url: "#", icon: Search },
+  { title: "Settings", url: "/account", icon: Settings },
 ];
 
 export function AppSidebar() {

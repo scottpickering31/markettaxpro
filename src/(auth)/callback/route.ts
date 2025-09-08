@@ -7,7 +7,7 @@ export async function GET(request: Request) {
   const code = searchParams.get("code");
   if (code) {
     await supabase.auth.exchangeCodeForSession(code);
-    return NextResponse.redirect(new URL("/app", request.url));
+    return NextResponse.redirect(new URL("/", request.url));
   }
   return NextResponse.redirect(
     new URL("/sign-in?error=missing_code", request.url)
