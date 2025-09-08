@@ -16,6 +16,8 @@ export async function GET(request: Request) {
   const supabase = await createClient();
   const { error } = await supabase.auth.exchangeCodeForSession(code);
 
+  console.log("[CB] code present:", !!code, "error:", error?.message ?? "none");
+
   if (error) {
     return NextResponse.redirect(
       new URL(
@@ -24,8 +26,6 @@ export async function GET(request: Request) {
       )
     );
   }
-
-  // Optional safety: only allow internal redirects
   const safeNext = next.startsWith("/") ? next : "/";
   return NextResponse.redirect(new URL(safeNext, request.url));
 }

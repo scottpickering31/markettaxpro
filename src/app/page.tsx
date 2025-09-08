@@ -31,6 +31,7 @@ export default async function SummaryPage() {
 
   return (
     <div className="space-y-6">
+      <h1> Welcome, {user.email}</h1>
       <h1 className="text-2xl font-semibold flex items-center gap-2">
         Summary <ConfidenceBadge rows={inYear} />
       </h1>

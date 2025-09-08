@@ -17,10 +17,12 @@ export default function SignInForm() {
     setLoading(true);
     setStatus("Sending magic link…");
 
-    const { data, error } = await supabase.auth.signInWithOtp({
+    const { error } = await supabase.auth.signInWithOtp({
       email,
       options: { emailRedirectTo: redirectTo },
     });
+
+    console.log("[SIGNIN] redirectTo:", redirectTo);
 
     setLoading(false);
     setStatus(

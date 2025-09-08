@@ -7,5 +7,7 @@ export async function requireUser() {
     data: { session },
   } = await supabase.auth.getSession();
   if (!session) redirect("/sign-in");
+  console.log("[GUARD] user:", session?.user?.id ?? "none");
+
   return session.user;
 }
