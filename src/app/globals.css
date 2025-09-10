@@ -8,10 +8,6 @@ body,
   height: 100%;
 }
 
-body {
-  @apply bg-white text-gray-900;
-}
-
 .container {
   @apply max-w-5xl mx-auto px-4;
 }
