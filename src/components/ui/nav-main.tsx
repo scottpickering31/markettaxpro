@@ -44,7 +44,7 @@ export function NavMain({
             className="group/collapsible "
           >
             <SidebarMenuItem>
-              <CollapsibleTrigger asChild>
+              <CollapsibleTrigger asChild className="cursor-pointer">
                 <SidebarMenuButton tooltip={item.title}>
                   {item.icon && <item.icon />}
                   <span>{item.title}</span>

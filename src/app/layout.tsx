@@ -18,12 +18,17 @@ import {
 } from "@/components/ui/breadcrumb";
 import { ThemeProvider } from "@/components/ui/theme-provider";
 import { ModeToggle } from "@/components/ui/mode-toggle";
+import { requireUser } from "@/lib/auth";
 
-// const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
-// const geistMono = Geist_Mono({
-//   variable: "--font-geist-mono",
-//   subsets: ["latin"],
-// });
+const user = await requireUser(); // redirects to /sign-in if no user
+
+// Map Supabase user to the small shape the client needs
+const sidebarUser = {
+  id: user.id,
+  email: user.email!, // supabase guarantees this when user exists
+  name: (user.user_metadata?.full_name as string | undefined) ?? null,
+  avatar_url: (user.user_metadata?.avatar_url as string | undefined) ?? null,
+};
 
 export const metadata: Metadata = {
   title: "MarketTaxPro — Bookkeeping for marketplace sellers",
@@ -40,12 +45,11 @@ export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en">
-      <body
-      >
+    <html lang="en" suppressHydrationWarning>
+      <body>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <SidebarProvider>
-            <AppSidebar />
+            <AppSidebar user={sidebarUser} />
             <SidebarInset>
               <header className="flex h-16 shrink-0 items-center gap-2 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
                 <div className="flex items-center gap-2 px-4">
