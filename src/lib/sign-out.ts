@@ -6,6 +6,6 @@ import { redirect } from "next/navigation";
 export async function signOut() {
   const supabase = await createClient();
   await supabase.auth.signOut();
-  console.log("[SIGNOUT]");
+  console.log("[SIGNOUT] SUCCESS");
   redirect("/sign-in");
 }

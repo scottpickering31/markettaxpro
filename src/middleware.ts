@@ -8,10 +8,13 @@ export async function middleware(request: NextRequest) {
 export const config = {
   matcher: [
     "/",
+    "/csv-export/:path*",
+    "/pdf-export/:path*",
+    "/account/:path*",
+    "/billing/:path*",
     "/connect/:path*",
     "/costs/:path*",
-    "/export/:path*",
+    "/import/:path*",
     "/transactions/:path*",
-    "/account/:path*",
   ],
 };

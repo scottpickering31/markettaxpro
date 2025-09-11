@@ -108,12 +108,14 @@ export function NavUser({
               </DropdownMenuGroup>
               <DropdownMenuSeparator />
               <DropdownMenuItem asChild>
-                <form action={signOut}>
-                  <button className="flex w-full items-center gap-2 text-left cursor-pointer">
-                    <LogOut />
-                    Log out
-                  </button>
-                </form>
+                <button
+                  onClick={() => signOut()}
+                  type="submit"
+                  className="flex w-full items-center gap-2 text-left cursor-pointer"
+                >
+                  <LogOut />
+                  Log out
+                </button>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
