@@ -24,6 +24,8 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
+  console.log("MW user:" + user?.email);
+
   const { pathname } = request.nextUrl;
 
   const isPublic =

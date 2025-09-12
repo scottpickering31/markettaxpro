@@ -14,7 +14,7 @@ export default function SignInClient({
 }) {
   useEffect(() => {
     if (justSent) {
-      toast("Magic link sent ✉️", {
+      toast("Confirmation link sent to your email ✉️", {
         description: "Check your inbox for the sign-in link.",
       });
     } else if (error) {
