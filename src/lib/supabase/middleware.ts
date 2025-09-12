@@ -40,6 +40,7 @@ export async function updateSession(request: NextRequest) {
   if (!user && !isPublic) {
     const url = request.nextUrl.clone();
     url.pathname = "/sign-in";
+    console.log("MW redirect:", url.pathname);
 
     url.searchParams.set("next", pathname + request.nextUrl.search);
     return NextResponse.redirect(url);

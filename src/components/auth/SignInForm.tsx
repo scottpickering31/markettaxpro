@@ -1,26 +1,18 @@
 "use client";
 
-import { useState } from "react";
-import { createClient } from "@/lib/supabase/client";
 import {
   Apple,
   Chrome as Google,
   PanelsTopLeft as Microsoft,
-  AlertTriangle,
   type LucideIcon,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import Image from "next/image";
+import { useState, useTransition } from "react";
+import { sendMagicLink, oauth } from "@/app/(auth)/actions";
 
-type Props = {
-  title?: string;
-  note?: string;
-  redirectTo?: string;
-};
-
-// --- Provider map + order -----------------------------------
 type ProviderId = "google" | "apple" | "azure";
 
 type ProviderSpec = {
@@ -31,45 +23,15 @@ type ProviderSpec = {
 const SignInProviders: Record<ProviderId, ProviderSpec> = {
   google: { name: "Google", icon: Google },
   apple: { name: "Apple", icon: Apple },
-  azure: { name: "Microsoft", icon: Microsoft }, // Supabase uses "azure" for Microsoft
+  azure: { name: "Microsoft", icon: Microsoft },
 };
 
-// Change the order however you like:
-const PROVIDER_ORDER: ProviderId[] = ["apple", "google", "azure"];
-// ------------------------------------------------------------
+const PROVIDER_ORDER: ProviderId[] = ["google", "azure", "apple"];
 
-export default function SignInForm({
-  title = "Sign up or Login with",
-  note = "Please verify you are a human and submit",
-  redirectTo = `${process.env.NEXT_PUBLIC_APP_URL}/callback`,
-}: Props) {
-  const supabase = createClient();
+export default function SignInForm() {
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
-
-  const oauth = async (provider: ProviderId) => {
-    await supabase.auth.signInWithOAuth({
-      provider, // "google" | "apple" | "azure"
-      options: { redirectTo },
-    });
-  };
-
-  const sendMagicLink = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setStatus("Sending magic link…");
-    const { error } = await supabase.auth.signInWithOtp({
-      email,
-      options: { emailRedirectTo: redirectTo },
-    });
-    setLoading(false);
-    setStatus(
-      error
-        ? `Error: ${error.message}`
-        : "Check your email for the sign-in link."
-    );
-  };
+  const [isPending, startTransition] = useTransition();
 
   return (
     <aside className="mx-auto w-full max-w-sm p-6 sm:p-8">
@@ -85,22 +47,24 @@ export default function SignInForm({
       </div>
 
       <h2 className="mb-4 text-center text-sm font-medium text-muted-foreground">
-        {title}
+        Sign in
       </h2>
 
-      {/* Provider buttons via map */}
+      {/* Providers */}
       <div className="grid gap-3">
         {PROVIDER_ORDER.map((id) => {
           const { name, icon: Icon } = SignInProviders[id];
           return (
             <Button
               key={id}
+              type="button"
               variant="outline"
               className="justify-start cursor-pointer"
-              onClick={() => oauth(id)}
+              onClick={() => startTransition(() => oauth(id))}
+              disabled={isPending}
             >
               <Icon className="mr-2 h-4 w-4" />
-              {name}
+              Continue with {name}
             </Button>
           );
         })}
@@ -113,40 +77,33 @@ export default function SignInForm({
         <Separator className="flex-1" />
       </div>
 
-      {/* Warning + CAPTCHA placeholder */}
-      {/* <div className="mb-4 rounded-lg border bg-card p-3 text-sm">
-        <div className="flex items-start gap-2">
-          <AlertTriangle className="mt-0.5 h-4 w-4 text-yellow-600" />
-          <div>
-            <div className="font-medium">Warning</div>
-            <div className="text-muted-foreground">{note}</div>
-          </div>
-        </div>
-      </div> */}
-
-      {/* Email + captcha placeholder */}
-      <form onSubmit={sendMagicLink} className="space-y-3">
+      {/* Email magic link */}
+      <form
+        action={(fd) => {
+          setStatus(null);
+          startTransition(() => sendMagicLink(fd));
+        }}
+        className="space-y-3"
+      >
         <Input
           type="email"
+          name="email"
           placeholder="name@host.com"
           required
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
           autoComplete="email"
           inputMode="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
         />
-
-        {/* <div className="flex h-16 items-center justify-center rounded-md border bg-muted/40 text-xs text-muted-foreground">
-            Verify you are human (CAPTCHA)
-          </div> */}
 
         <Button
           type="submit"
           className="w-full cursor-pointer"
-          disabled={loading}
+          disabled={isPending}
         >
-          {loading ? "Sending…" : "Continue"}
+          {isPending ? "Sending…" : "Continue"}
         </Button>
+
         {status && <p className="text-xs text-muted-foreground">{status}</p>}
       </form>
     </aside>
