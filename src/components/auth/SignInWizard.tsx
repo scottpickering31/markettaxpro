@@ -143,7 +143,11 @@ export default function SignInWizard({
         value={email}
         onChange={(e) => setEmail(e.target.value)}
       />
-      <Button type="submit" className="w-full" disabled={isPending}>
+      <Button
+        type="submit"
+        className="w-full cursor-pointer"
+        disabled={isPending}
+      >
         {isPending ? "Continue…" : "Continue"}
       </Button>
     </form>
@@ -288,7 +292,7 @@ export default function SignInWizard({
             key={id}
             type="button"
             variant="outline"
-            className="justify-start h-12"
+            className="justify-start h-12 cursor-pointer"
             onClick={() => startTransition(() => oauth(id))}
             disabled={isPending}
           >
