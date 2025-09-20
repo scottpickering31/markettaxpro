@@ -1,14 +1,11 @@
 // app/(auth)/sign-in/page.tsx
 import SignInWizard from "@/components/auth/SignInWizard";
 
-type Search = { step?: "email" | "password" | "otp"; email?: string; error?: string };
-
-export default async function SignInPage({ searchParams }: { searchParams?: Promise<Search> }) {
-  const sp = (await searchParams) ?? {};
+export default function SignInPage() {
   return (
     <div className="grid min-h-screen grid-cols-1 md:grid-cols-[420px_1fr]">
       <div className="border-r bg-background">
-        <SignInWizard initialStep={sp.step ?? "email"} initialEmail={sp.email ?? ""} />
+        <SignInWizard />
       </div>
       <div className="relative hidden md:block">
         <div className="absolute inset-0" />

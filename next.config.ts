@@ -32,9 +32,8 @@ const nextConfig: NextConfig = {
   },
   serverExternalPackages: ["pdfkit"],
   reactStrictMode: true,
-  experimental: {
-    typedRoutes: true,
-  },
+  typedRoutes: true,
+  outputFileTracingRoot: process.cwd(),
 };
 
 export default nextConfig;

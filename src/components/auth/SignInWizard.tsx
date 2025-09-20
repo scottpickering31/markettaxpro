@@ -1,14 +1,18 @@
+// components/auth/SignInWizard.tsx
 "use client";
 
 import { useEffect, useMemo, useState, useTransition } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
-import { beginPasswordFlow, sendEmailOtp, oauth } from "@/app/(auth)/actions";
+import { oauth } from "@/app/(auth)/actions";
 import { createClient } from "@/lib/supabase/client";
-import { setLocalPassword } from "@/app/(auth)/actions.setPassword";
+import {
+  checkHasLocalPassword,
+  finalizeLocalPassword,
+} from "@/app/(auth)/actions.localPassword";
 import Google from "../../../public/google.svg";
 import Apple from "../../../public/apple.svg";
 import Microsoft from "../../../public/microsoft.svg";
@@ -20,9 +24,11 @@ import {
 import { REGEXP_ONLY_DIGITS_AND_CHARS } from "input-otp";
 
 type Step = "email" | "password" | "otp";
+type Mode = "login" | "create";
+
 const supabase = createClient();
 
-// sessionStorage helpers for password persistence across remounts
+// sessionStorage helpers to survive remounts
 const PW_KEY = "mkt-auth-pw";
 function loadPassword() {
   try {
@@ -42,47 +48,31 @@ function clearPassword() {
   } catch {}
 }
 
-export default function SignInWizard({
-  initialStep,
-  initialEmail,
-}: {
-  initialStep: Step;
-  initialEmail: string;
-}) {
+export default function SignInWizard() {
   const router = useRouter();
-  const sp = useSearchParams();
-  const [step, setStep] = useState<Step>(initialStep);
-  const [email, setEmail] = useState(initialEmail);
+  const [step, setStep] = useState<Step>("email");
+  const [mode, setMode] = useState<Mode>("create");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [code, setCode] = useState("");
   const [isPending, startTransition] = useTransition();
 
-  // hydrate error toast (once per mount)
+  // hydrate persisted password on mount
   useEffect(() => {
-    const err = sp.get("error");
-    if (err)
-      toast.error("Sign-in error", { description: err, id: "signin-error" });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    setPassword((p) => p || loadPassword());
   }, []);
 
-  // hydrate password from sessionStorage on mount/remount
-  useEffect(() => {
-    setPassword((prev) => prev || loadPassword());
-  }, []);
-
-  // keep password persisted as user types
   useEffect(() => {
     if (password) savePassword(password);
   }, [password]);
 
-  // keep step & email in URL so refresh preserves context
-  const go = (nextStep: Step) => {
-    const q = new URLSearchParams({ step: nextStep, email });
-    router.replace(`/sign-in?${q.toString()}`);
-    setStep(nextStep);
+  // keep URL nice (optional – no server redirects)
+  const reflectUrl = (s: Step) => {
+    const q = new URLSearchParams({ step: s, email });
+    // don't navigate away; replace shallowly so refresh preserves state
+    window.history.replaceState(null, "", `/sign-in?${q.toString()}`);
   };
 
-  // Providers list
   const providers = useMemo(
     () => [
       { id: "google" as const, name: "Google", Icon: Google },
@@ -92,47 +82,113 @@ export default function SignInWizard({
     []
   );
 
-  const handleVerify = async () => {
-    // ensure code + password present (password might have been lost without storage)
+  // --- Handlers ---
+
+  async function handleEmailContinue(e: React.FormEvent) {
+    e.preventDefault();
+    const normalized = email.trim().toLowerCase();
+    if (!normalized) return;
+
+    startTransition(async () => {
+      try {
+        const exists = await checkHasLocalPassword(normalized);
+        setMode(exists ? "login" : "create");
+        setStep("password");
+        reflectUrl("password");
+      } catch (err: any) {
+        toast.error("Couldn’t check account", {
+          description: err?.message ?? "Try again.",
+        });
+      }
+    });
+  }
+
+  async function handlePasswordContinue(e: React.FormEvent) {
+    e.preventDefault();
+    const pw = password || loadPassword();
+    if (pw.length < 8) {
+      toast.error("Password too short", {
+        description: "Use at least 8 characters.",
+      });
+      return;
+    }
+
+    if (mode === "login") {
+      // Returning user → sign in directly with Supabase
+      startTransition(async () => {
+        const { error } = await supabase.auth.signInWithPassword({
+          email,
+          password: pw,
+        });
+        if (error) {
+          toast.error("Login failed", { description: error.message });
+          return;
+        }
+        clearPassword();
+        router.replace("/"); // ✅ only redirect after success
+      });
+    } else {
+      // New user → send OTP, then go to OTP step
+      startTransition(async () => {
+        const { error } = await supabase.auth.signInWithOtp({
+          email,
+          options: { shouldCreateUser: true },
+        });
+        if (error) {
+          toast.error("Could not send code", { description: error.message });
+          return;
+        }
+        setStep("otp");
+        reflectUrl("otp");
+        toast("Code sent", { description: `Sent to ${email}` });
+      });
+    }
+  }
+
+  async function handleVerify(e?: React.FormEvent) {
+    e?.preventDefault();
     const pw = password || loadPassword();
     if (pw.length < 8) {
       toast.error("Password missing", {
-        description: "Please go back and enter a password (min 8 chars).",
+        description: "Please go back and enter a valid password.",
       });
       return;
     }
     if (code.length !== 6) return;
 
-    const { error } = await supabase.auth.verifyOtp({
-      email,
-      token: code,
-      type: "email",
-    });
-
-    if (error) {
-      toast.error("Invalid code", { description: error.message });
-      return;
-    }
-
-    // ✅ Session set. Save password server-side (action will redirect on success)
-    const fd = new FormData();
-    fd.set("password", pw);
-
     startTransition(async () => {
-      try {
-        await setLocalPassword(fd); // server action redirects to "/"
-      } finally {
-        clearPassword(); // clean up secret
+      // 1) Verify OTP → creates a session
+      const { error } = await supabase.auth.verifyOtp({
+        email,
+        token: code,
+        type: "email",
+      });
+      if (error) {
+        toast.error("Invalid code", { description: error.message });
+        return;
       }
-    });
-  };
 
-  // Step UIs
+      // 2) Set Supabase password + store peppered hash in DB (server action)
+      try {
+        await finalizeLocalPassword(pw);
+      } catch (err: any) {
+        toast.error("Couldn’t finalize password", {
+          description: err?.message ?? "Try again.",
+        });
+        return;
+      } finally {
+        clearPassword();
+      }
+
+      // 3) Redirect after success
+      router.replace("/");
+    });
+  }
+
+  // --- Steps ---
+
   const EmailStep = (
-    <form
-      action={(fd) => startTransition(() => beginPasswordFlow(fd))}
-      className="space-y-4"
-    >
+    <form onSubmit={handleEmailContinue} className="space-y-4">
       <Input
         type="email"
         name="email"
@@ -148,64 +204,62 @@ export default function SignInWizard({
         className="w-full cursor-pointer"
         disabled={isPending}
       >
-        {isPending ? "Continue…" : "Continue"}
+        {isPending ? "Checking…" : "Continue"}
       </Button>
     </form>
   );
 
   const PasswordStep = (
-    <form
-      action={(fd) => {
-        // ensure the action receives email too
-        fd.set("email", email);
-        // make sure we persist before navigation/remount
-        savePassword(password);
-        startTransition(() => sendEmailOtp(fd));
-      }}
-      className="space-y-4"
-    >
+    <form onSubmit={handlePasswordContinue} className="space-y-4">
       <Input
         type="password"
         name="password"
-        placeholder="Enter password"
+        placeholder={
+          mode === "login" ? "Enter your password" : "Create a password"
+        }
         required
-        autoComplete="new-password"
+        autoComplete={mode === "login" ? "current-password" : "new-password"}
         value={password}
         onChange={(e) => setPassword(e.target.value)}
         minLength={8}
       />
-      <div className="flex gap-2">
+      <div className="flex gap-2 ">
         <Button
           type="button"
           variant="outline"
-          className="w-1/3"
-          onClick={() => go("email")}
+          className="w-1/3 cursor-pointer"
+          onClick={() => {
+            setStep("email");
+            reflectUrl("email");
+          }}
         >
           Back
         </Button>
         <Button
           type="submit"
-          className="w-2/3"
+          className="w-2/3 cursor-pointer"
           disabled={isPending || password.length < 8}
         >
-          {isPending ? "Sending code…" : "Continue"}
+          {isPending
+            ? mode === "login"
+              ? "Signing in…"
+              : "Sending code…"
+            : mode === "login"
+            ? "Sign in"
+            : "Continue"}
         </Button>
       </div>
-      <p className="text-xs text-muted-foreground">
-        We’ll send a 6-digit code to{" "}
-        <span className="font-medium">{email}</span>.
-      </p>
+      {mode === "create" && (
+        <p className="text-xs text-muted-foreground">
+          We’ll send a 6-digit code to{" "}
+          <span className="font-medium">{email}</span>.
+        </p>
+      )}
     </form>
   );
 
   const OtpStep = (
-    <form
-      onSubmit={(e) => {
-        e.preventDefault();
-        void handleVerify();
-      }}
-      className="space-y-4"
-    >
+    <form onSubmit={handleVerify} className="space-y-4">
       <div className="flex flex-col items-center gap-3">
         <InputOTP
           autoFocus
@@ -237,7 +291,10 @@ export default function SignInWizard({
           type="button"
           variant="outline"
           className="w-1/3"
-          onClick={() => go("password")}
+          onClick={() => {
+            setStep("password");
+            reflectUrl("password");
+          }}
         >
           Back
         </Button>
@@ -321,12 +378,17 @@ export default function SignInWizard({
 
       {step === "password" && (
         <>
-          <h1 className="mb-4 text-sm font-medium text-muted-foreground">
-            Password
+          <h1 className="mb-1 text-sm font-medium text-muted-foreground">
+            {mode === "login" ? "Password" : "Create a password"}
           </h1>
+          <p className="mb-3 text-xs text-muted-foreground">
+            {mode === "login"
+              ? "Enter your password to sign in."
+              : "We’ll verify your email next, then set your password."}
+          </p>
+          {PasswordStep}
         </>
       )}
-      {step === "password" && PasswordStep}
 
       {step === "otp" && (
         <>
