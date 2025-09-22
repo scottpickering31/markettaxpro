@@ -14,8 +14,8 @@ import {
   finalizeLocalPassword,
 } from "@/app/(auth)/actions.localPassword";
 import Google from "../../../public/google.svg";
-import Apple from "../../../public/apple.svg";
 import Microsoft from "../../../public/microsoft.svg";
+import Facebook from "../../../public/facebook.svg";
 import {
   InputOTP,
   InputOTPGroup,
@@ -77,7 +77,7 @@ export default function SignInWizard() {
     () => [
       { id: "google" as const, name: "Google", Icon: Google },
       { id: "azure" as const, name: "Microsoft", Icon: Microsoft },
-      { id: "apple" as const, name: "Apple", Icon: Apple },
+      { id: "facebook" as const, name: "Facebook", Icon: Facebook },
     ],
     []
   );
