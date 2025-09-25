@@ -77,7 +77,7 @@ export default function SignInWizard() {
     () => [
       { id: "google" as const, name: "Google", Icon: Google },
       { id: "azure" as const, name: "Microsoft", Icon: Microsoft },
-      { id: "facebook" as const, name: "Facebook", Icon: Facebook },
+      // { id: "facebook" as const, name: "Facebook", Icon: Facebook },
     ],
     []
   );
@@ -95,9 +95,10 @@ export default function SignInWizard() {
         setMode(exists ? "login" : "create");
         setStep("password");
         reflectUrl("password");
-      } catch (err: any) {
+      } catch (err: unknown) {
+        const message = err instanceof Error ? err.message : "Try again.";
         toast.error("Couldn’t check account", {
-          description: err?.message ?? "Try again.",
+          description: message,
         });
       }
     });

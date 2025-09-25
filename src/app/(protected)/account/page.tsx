@@ -1,5 +1,6 @@
 import { requireUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
+import DeleteAccountButton from "@/components/auth/DeleteAccountButton";
 
 export default async function AccountPage() {
   const user = await requireUser();
@@ -28,7 +29,7 @@ export default async function AccountPage() {
             className="mt-1 w-full rounded border px-3 py-2"
           />
         </div>
-        <button className="rounded bg-gray-900 px-3 py-2 text-white">
+        <button className="rounded bg-gray-900 px-3 py-2 text-white cursor-pointer">
           Save
         </button>
       </form>
@@ -59,11 +60,7 @@ export default async function AccountPage() {
         <a href="/api/export/csv" className="rounded border px-3 py-2 text-sm">
           Download CSV
         </a>
-        <form action="/api/account/delete" method="post" className="inline">
-          <button className="ml-2 rounded border px-3 py-2 text-sm text-red-600">
-            Delete account
-          </button>
-        </form>
+        <DeleteAccountButton />
       </section>
     </div>
   );
