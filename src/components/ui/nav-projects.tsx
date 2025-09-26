@@ -34,11 +34,13 @@ export function NavProjects({
     icon: LucideIcon;
   }[];
 }) {
-  const { isMobile } = useSidebar();
+  const { isMobile, state } = useSidebar();
 
   return (
     <SidebarGroup>
-      <SidebarGroupLabel>Connected Marketplaces</SidebarGroupLabel>
+      {state === "expanded" && (
+        <SidebarGroupLabel>Connected Marketplaces</SidebarGroupLabel>
+      )}
       <SidebarMenu>
         {projects.map((item) => (
           <SidebarMenuItem key={item.name}>

@@ -17,15 +17,11 @@ export default function BrandHeader() {
     <div className="p-2">
       <Link
         href="/"
-        className="flex h-12 items-center gap-2 rounded-md px-2 text-sm
-                   hover:bg-sidebar-accent hover:text-sidebar-accent-foreground
-                   transition-colors"
+        className="flex h-12 items-center gap-2 rounded-md px-2 text-sm transition-colors
+                 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground
+                 group-data-[collapsible=icon]:h-8 group-data-[collapsible=icon]:gap-0 group-data-[collapsible=icon]:px-0 "
       >
-        <div
-          className="text-sidebar-primary-foreground
-                        flex size-8 items-center justify-center rounded-lg"
-        >
-          {/* your existing logo component */}
+        <div className="flex size-8 items-center justify-center rounded-lg text-sidebar-primary-foreground">
           <BrandLogo className="size-8" />
         </div>
 

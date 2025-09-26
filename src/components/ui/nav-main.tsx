@@ -16,6 +16,7 @@ import {
   SidebarMenuSub,
   SidebarMenuSubButton,
   SidebarMenuSubItem,
+  useSidebar,
 } from "@/components/ui/sidebar";
 
 export function NavMain({
@@ -32,9 +33,10 @@ export function NavMain({
     }[];
   }[];
 }) {
+  const { state } = useSidebar();
   return (
     <SidebarGroup>
-      <SidebarGroupLabel>Features</SidebarGroupLabel>
+      {state === "expanded" && <SidebarGroupLabel>Features</SidebarGroupLabel>}
       <SidebarMenu>
         {items.map((item) => (
           <Collapsible
