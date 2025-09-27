@@ -9,6 +9,7 @@ import {
   Store,
   ShoppingCart,
   Plus,
+  Star,
 } from "lucide-react";
 import { NavMain } from "@/components/ui/nav-main";
 import { NavProjects } from "@/components/ui/nav-projects";
@@ -23,7 +24,8 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import BrandHeader from "../ui/brand-header";
-import { Button } from "../ui/button";
+import Link from "next/link";
+import { Route } from "next";
 
 type SidebarUser = {
   email: string;
@@ -65,6 +67,12 @@ const data = {
       ],
     },
   ],
+  upgrade: {
+    title: "Upgrade to Pro",
+    url: "/pricing" as Route,
+    icon: Star,
+  },
+
   connectedMarketplaces: [
     { name: "Etsy Shop", url: "/marketplaces/etsy", icon: Store },
     { name: "eBay Store", url: "/marketplaces/ebay", icon: ShoppingCart },
@@ -89,6 +97,16 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
         </SidebarMenuButton>
         <NavProjects projects={data.connectedMarketplaces} />
         <NavMain items={data.navMain} />
+        <SidebarMenuButton
+          asChild
+          tooltip={data.upgrade.title}
+          className="flex justify-center"
+        >
+          <Link href={data.upgrade.url}>
+            <Star className="me-2 h-4 w-4" />
+            {state === "expanded" ? data.upgrade.title : null}
+          </Link>
+        </SidebarMenuButton>
       </SidebarContent>
       <SidebarFooter>
         <NavUser

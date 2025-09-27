@@ -3,9 +3,9 @@ import { Check } from "lucide-react";
 import BillingToggle from "@/components/pricing/BillingToggle";
 import ComparisonTable from "@/components/pricing/ComparisonTable";
 import FAQ from "@/components/pricing/FaqQuestions";
+import { Button } from "@/components/ui/button";
 
 type Billing = "monthly" | "yearly";
-
 export default function Page({
   searchParams,
 }: {
@@ -23,18 +23,20 @@ export default function Page({
       blurb: "For trying things out",
       features: [
         "Up to 100 transactions",
-        "1 CSV import",
+        "1 monthly CSV import",
         "VAT tracker",
         "Email support",
       ],
       featured: false,
+      buttonTitle: "Use for free",
+      buttonVariant: "ghost",
     },
     {
       name: "Pro",
       badge: "Most popular",
       prices: { monthly: 9, yearly: 84 },
       per: billing === "yearly" ? "/ year" : "/ month",
-      blurb: "For active sellers",
+      blurb: "For active sellers - (Everything from Free, plus):",
       features: [
         "Unlimited transactions",
         "Etsy & eBay sync",
@@ -43,21 +45,8 @@ export default function Page({
         "Priority support",
       ],
       featured: true,
-    },
-    {
-      name: "Business",
-      badge: "For teams",
-      prices: { monthly: 19, yearly: 180 },
-      per: billing === "yearly" ? "/ year" : "/ month",
-      blurb: "For multi-shop or accountant-led",
-      features: [
-        "Everything in Pro",
-        "Up to 5 connected shops",
-        "Role-based access",
-        "Advanced analytics",
-        "Dedicated support window",
-      ],
-      featured: false,
+      buttonTitle: "Get started",
+      buttonVariant: "default",
     },
   ];
 
@@ -84,8 +73,8 @@ export default function Page({
       </section>
 
       {/* Plans — server-rendered, reacts to ?billing= */}
-      <section className="mx-auto max-w-6xl px-6 py-10">
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      <section className="mx-auto max-w-6xl px-20 py-10 items-center">
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-2">
           {plans.map((p) => {
             const price =
               billing === "yearly" ? p.prices.yearly : p.prices.monthly;
@@ -123,14 +112,22 @@ export default function Page({
                   </div>
                 </div>
                 <p className="mt-1 text-sm text-gray-600">{p.blurb}</p>
-                <ul className="mt-4 space-y-2 text-sm">
-                  {p.features.map((f) => (
-                    <li key={f} className="flex items-start gap-2">
-                      <Check className="mt-0.5 h-4 w-4" aria-hidden />
-                      <span>{f}</span>
-                    </li>
-                  ))}
-                </ul>
+                <div className="flex flex-row relative h-40">
+                  <ul className="mt-4 space-y-2 text-sm">
+                    {p.features.map((f) => (
+                      <li key={f} className="flex items-start gap-2">
+                        <Check className="mt-0.5 h-4 w-4" aria-hidden />
+                        <span>{f}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  <Button
+                    className="absolute bottom-0 right-0"
+                    variant={p.buttonVariant as "default" | "ghost"}
+                  >
+                    {p.buttonTitle}
+                  </Button>
+                </div>
               </div>
             );
           })}
