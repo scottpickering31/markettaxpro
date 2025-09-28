@@ -7,14 +7,7 @@ import {
 import { AppSidebar } from "@/components/local/app-sidebar";
 import { ModeToggle } from "@/components/ui/mode-toggle";
 import { Separator } from "@/components/ui/separator";
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb";
+import AutoBreadcrumbs from "@/components/nav/AutoBreadcrumbs";
 
 export default async function ProtectedLayout({
   children,
@@ -40,19 +33,18 @@ export default async function ProtectedLayout({
             <SidebarTrigger className="-ml-1" />
             <ModeToggle />
             <Separator orientation="vertical" className="mr-2 h-4" />
-            <Breadcrumb>
-              <BreadcrumbList>
-                <BreadcrumbItem className="hidden md:block">
-                  <BreadcrumbLink href="#">
-                    Building Your Application
-                  </BreadcrumbLink>
-                </BreadcrumbItem>
-                <BreadcrumbSeparator className="hidden md:block" />
-                <BreadcrumbItem>
-                  <BreadcrumbPage>Data Fetching</BreadcrumbPage>
-                </BreadcrumbItem>
-              </BreadcrumbList>
-            </Breadcrumb>
+
+            <AutoBreadcrumbs
+              // Optional overrides for segments/ids
+              labelMap={{
+                // e.g. map known sections or dynamic slugs to friendly names
+                transactions: "Transactions",
+                costs: "Costs",
+                "csv-export": "CSV Export",
+                "pdf-export": "PDF Export",
+                // '123': 'Order #123', // example for a dynamic id
+              }}
+            />
           </div>
         </header>
 

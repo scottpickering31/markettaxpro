@@ -100,7 +100,7 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
         <SidebarMenuButton
           asChild
           tooltip={data.upgrade.title}
-          className="flex justify-center"
+          className="flex justify-center group-data-[collapsible=icon]:justify-normal"
         >
           <Link href={data.upgrade.url}>
             <Star className="me-2 h-4 w-4" />

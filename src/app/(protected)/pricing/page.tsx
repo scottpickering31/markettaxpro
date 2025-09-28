@@ -51,7 +51,7 @@ export default function Page({
   ];
 
   return (
-    <div className="bg-gradient-to-b from-white to-gray-50">
+    <div>
       {/* Hero */}
       <section className="mx-auto max-w-6xl px-6 pt-12 text-center">
         <h1 className="text-4xl tracking-tight sm:text-5xl">
@@ -81,7 +81,7 @@ export default function Page({
             return (
               <div
                 key={p.name}
-                className={`relative rounded-2xl border bg-white p-6 shadow-sm transition hover:shadow ${
+                className={`relative rounded-2xl border p-6 shadow-sm transition hover:shadow ${
                   p.featured ? "ring-2 ring-blue-600" : ""
                 }`}
               >
@@ -121,12 +121,21 @@ export default function Page({
                       </li>
                     ))}
                   </ul>
-                  <Button
-                    className="absolute bottom-0 right-0"
-                    variant={p.buttonVariant as "default" | "ghost"}
-                  >
-                    {p.buttonTitle}
-                  </Button>
+                  {p.name === "Pro" ? (
+                    <Button
+                      className="absolute bottom-0 right-0"
+                      variant={p.buttonVariant as "default" | "ghost"}
+                    >
+                      {p.buttonTitle}
+                    </Button>
+                  ) : (
+                    <Button
+                      className="absolute bottom-0 right-0 cursor-auto hover:bg-white"
+                      variant="outline"
+                    >
+                      Current package
+                    </Button>
+                  )}
                 </div>
               </div>
             );
