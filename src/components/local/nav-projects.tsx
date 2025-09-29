@@ -5,6 +5,7 @@ import {
   Forward,
   MoreHorizontal,
   Trash2,
+  Pencil,
   type LucideIcon,
 } from "lucide-react";
 
@@ -64,16 +65,20 @@ export function NavProjects({
               >
                 <DropdownMenuItem>
                   <Folder className="text-muted-foreground" />
-                  <span>View Shop</span>
+                  <span>View Marketplace</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem>
                   <Forward className="text-muted-foreground" />
-                  <span>Share Shop</span>
+                  <span>Share Marketplace</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem>
+                  <Pencil className="text-muted-foreground" />
+                  <span>Rename Marketplace</span>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem>
                   <Trash2 className="text-muted-foreground" />
-                  <span>Delete Shop</span>
+                  <span>Delete Marketplace</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

@@ -11,9 +11,9 @@ import {
   Plus,
   Star,
 } from "lucide-react";
-import { NavMain } from "@/components/ui/nav-main";
-import { NavProjects } from "@/components/ui/nav-projects";
-import { NavUser } from "@/components/ui/nav-user";
+import { NavMain } from "@/components/local/nav-main";
+import { NavProjects } from "@/components/local/nav-projects";
+import { NavUser } from "@/components/local/nav-user";
 import {
   Sidebar,
   SidebarContent,
