@@ -6,10 +6,9 @@ import {
   Table,
   ReceiptText,
   Download,
-  Store,
-  ShoppingCart,
   Plus,
   Star,
+  type LucideIcon,
 } from "lucide-react";
 import { NavMain } from "@/components/local/nav-main";
 import { NavProjects } from "@/components/local/nav-projects";
@@ -27,14 +26,23 @@ import BrandHeader from "../ui/brand-header";
 import Link from "next/link";
 import { Route } from "next";
 
-type SidebarUser = {
+export type SidebarUser = {
   email: string;
   name?: string | null;
   avatar_url?: string | null;
 };
 
+export type ConnectedMarketplace = {
+  id: string;
+  name: string;
+  url: string;
+  icon: LucideIcon;
+};
+
 type AppSidebarProps = React.ComponentProps<typeof Sidebar> & {
   user: SidebarUser;
+  connectedMarketplaces?: ConnectedMarketplace[];
+  onAddMarketplace?: () => void;
 };
 
 const data = {
@@ -72,14 +80,14 @@ const data = {
     url: "/pricing" as Route,
     icon: Star,
   },
-
-  connectedMarketplaces: [
-    { name: "Etsy Shop", url: "/marketplaces/etsy", icon: Store },
-    { name: "eBay Store", url: "/marketplaces/ebay", icon: ShoppingCart },
-  ],
 };
 
-export function AppSidebar({ user, ...props }: AppSidebarProps) {
+export function AppSidebar({
+  user,
+  connectedMarketplaces = [],
+  onAddMarketplace,
+  ...props
+}: AppSidebarProps) {
   const { state } = useSidebar();
   return (
     <Sidebar collapsible="icon" {...props} className="relative">
@@ -89,13 +97,14 @@ export function AppSidebar({ user, ...props }: AppSidebarProps) {
       <SidebarContent>
         <SidebarMenuButton
           tooltip={"Add a Marketplace"}
-          className="cursor-pointer w-full bg-gradient-to-r from-blue-500 via-blue-600 to-blue-800 
-                h-15 text-white rounded-none text-sm font-bold hover:text-white text-center group-data-[collapsible=icon]:bg-none group-data-[collapsible=icon]:text-black group-data-[collapsible=icon]:hover:text-black hover:from-blue-800 hover:via-blue-600 hover:to-blue-500"
+          type="button"
+          onClick={() => onAddMarketplace?.()}
+          className="cursor-pointer w-full bg-gradient-to-r from-blue-500 via-blue-600 to-blue-800 h-15 text-white rounded-none text-sm font-bold hover:text-white text-center group-data-[collapsible=icon]:bg-none group-data-[collapsible=icon]:text-black group-data-[collapsible=icon]:hover:text-black hover:from-blue-800 hover:via-blue-600 hover:to-blue-500"
         >
           <Plus className="me-2 h-4 w-4" />
           {state === "expanded" ? "Add a Marketplace" : null}
         </SidebarMenuButton>
-        <NavProjects projects={data.connectedMarketplaces} />
+        <NavProjects projects={connectedMarketplaces} />
         <NavMain items={data.navMain} />
         <SidebarMenuButton
           asChild
