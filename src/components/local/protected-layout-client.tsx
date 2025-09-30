@@ -85,11 +85,9 @@ export default function ProtectedLayoutClient({
       const marketplace = MARKETPLACE_CATALOG.find(
         (item) => item.id === marketplaceId
       );
-
       if (!marketplace) {
         return;
       }
-
       setConnectedMarketplaces((prev) => [...prev, marketplace]);
     },
     []
