@@ -2,7 +2,13 @@
 "use client";
 
 import * as React from "react";
-import { useEffect, useState, useCallback, FormEvent } from "react";
+import {
+  useEffect,
+  useState,
+  useCallback,
+  FormEvent,
+  useMemo,
+} from "react";
 import { Check, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -14,6 +20,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 
 type MarketplaceDialogProps = {
@@ -25,10 +32,12 @@ type MarketplaceDialogProps = {
     description: string;
     label: string;
   }[];
-  onConnect: (marketplaceId: string) => void;
+  onConnect: (marketplaceId: string, marketplaceName: string) => void;
 };
 
 const COMING_SOON = new Set(["shopify", "amazon-handmade"]);
+
+type DialogStep = "select" | "details";
 
 export function MarketplaceDialog({
   open,
@@ -39,24 +48,76 @@ export function MarketplaceDialog({
   const [selectedMarketplace, setSelectedMarketplace] = useState<string | null>(
     null
   );
+  const [step, setStep] = useState<DialogStep>("select");
+  const [marketplaceName, setMarketplaceName] = useState("");
+
+  const selectedMarketplaceDetails = useMemo(
+    () => marketplaces.find((m) => m.id === selectedMarketplace) ?? null,
+    [marketplaces, selectedMarketplace]
+  );
 
   // When dialog opens, preselect the first *enabled* marketplace
   useEffect(() => {
-    if (!open) return;
+    if (!open) {
+      setStep("select");
+      setSelectedMarketplace(null);
+      setMarketplaceName("");
+      return;
+    }
+
     const firstEnabled = marketplaces.find((m) => !COMING_SOON.has(m.id));
+    setStep("select");
     setSelectedMarketplace(firstEnabled?.id ?? null);
+    setMarketplaceName(firstEnabled?.label ?? firstEnabled?.name ?? "");
   }, [open, marketplaces]);
+
+  useEffect(() => {
+    if (!open) return;
+    if (step !== "select") return;
+
+    if (!selectedMarketplace) {
+      setMarketplaceName("");
+      return;
+    }
+
+    const selected = marketplaces.find((m) => m.id === selectedMarketplace);
+    setMarketplaceName(selected?.label ?? selected?.name ?? "");
+  }, [open, step, selectedMarketplace, marketplaces]);
 
   const handleSubmit = useCallback(
     (event: FormEvent<HTMLFormElement>) => {
       event.preventDefault();
+      if (step !== "details") return;
       if (!selectedMarketplace) return;
       if (COMING_SOON.has(selectedMarketplace)) return;
-      onConnect(selectedMarketplace);
+      const trimmedName = marketplaceName.trim();
+      const fallbackName =
+        selectedMarketplaceDetails?.label ??
+        selectedMarketplaceDetails?.name ??
+        "";
+      onConnect(selectedMarketplace, trimmedName || fallbackName);
       onOpenChange(false);
     },
-    [onConnect, onOpenChange, selectedMarketplace]
+    [
+      onConnect,
+      onOpenChange,
+      selectedMarketplace,
+      marketplaceName,
+      step,
+      selectedMarketplaceDetails,
+    ]
   );
+
+  const handleProceedToDetails = useCallback(() => {
+    if (!selectedMarketplace) return;
+    if (COMING_SOON.has(selectedMarketplace)) return;
+    const fallbackName =
+      selectedMarketplaceDetails?.label ??
+      selectedMarketplaceDetails?.name ??
+      "";
+    setMarketplaceName((current) => current || fallbackName);
+    setStep("details");
+  }, [selectedMarketplace, selectedMarketplaceDetails]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -75,7 +136,7 @@ export function MarketplaceDialog({
               All supported marketplaces are already connected. Stay tuned for
               new integrations!
             </div>
-          ) : (
+          ) : step === "select" ? (
             <div className="grid gap-4">
               <div className="grid gap-2">
                 <p className="text-sm font-medium">Marketplace</p>
@@ -137,6 +198,39 @@ export function MarketplaceDialog({
                 </div>
               </div>
             </div>
+          ) : (
+            <div className="grid gap-4">
+              <div className="grid gap-2">
+                <p className="text-sm font-medium">Marketplace details</p>
+                <div className="rounded-lg border bg-muted/40 p-4 text-sm">
+                  <p className="font-medium">
+                    {selectedMarketplaceDetails?.label ??
+                      selectedMarketplaceDetails?.name}
+                  </p>
+                  <p className="text-muted-foreground">
+                    Customize how this marketplace appears in your sidebar.
+                  </p>
+                </div>
+                <div className="grid gap-2">
+                  <label className="text-sm font-medium" htmlFor="marketplace-name">
+                    Marketplace name
+                  </label>
+                  <Input
+                    id="marketplace-name"
+                    value={marketplaceName}
+                    onChange={(event) => setMarketplaceName(event.target.value)}
+                    placeholder={
+                      selectedMarketplaceDetails?.label ?? "My marketplace"
+                    }
+                    autoFocus
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    This name will be shown in the sidebar to help you
+                    recognize the connection.
+                  </p>
+                </div>
+              </div>
+            </div>
           )}
 
           <DialogFooter>
@@ -145,14 +239,33 @@ export function MarketplaceDialog({
                 Cancel
               </Button>
             </DialogClose>
-            <Button
-              type="submit"
-              disabled={
-                !selectedMarketplace || COMING_SOON.has(selectedMarketplace)
-              }
-            >
-              Connect marketplace
-            </Button>
+            {step === "details" ? (
+              <>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  onClick={() => setStep("select")}
+                >
+                  Back
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={!marketplaceName.trim()}
+                >
+                  Finish setup
+                </Button>
+              </>
+            ) : (
+              <Button
+                type="button"
+                disabled={
+                  !selectedMarketplace || COMING_SOON.has(selectedMarketplace)
+                }
+                onClick={handleProceedToDetails}
+              >
+                Connect marketplace
+              </Button>
+            )}
           </DialogFooter>
         </DialogContent>
       </form>
