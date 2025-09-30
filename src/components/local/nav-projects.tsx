@@ -25,6 +25,8 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
+import Link from "next/link";
+import { Route } from "next";
 
 export function NavProjects({
   projects,
@@ -32,6 +34,7 @@ export function NavProjects({
   projects: {
     id?: string;
     name: string;
+    label?: string;
     url: string;
     icon: LucideIcon;
     connectionId?: string;
@@ -56,16 +59,16 @@ export function NavProjects({
           </SidebarMenuItem>
         ) : (
           projects.map((item, index) => {
-            const projectKey =
-              item.connectionId ?? item.id ?? `${item.name}-${index}`;
-
+            const text = item.name || item.label || "Untitled";
             return (
-              <SidebarMenuItem key={projectKey}>
-                <SidebarMenuButton asChild tooltip={item.name}>
-                  <a href={item.url}>
+              <SidebarMenuItem
+                key={item.connectionId ?? item.id ?? `${item.name}-${index}`}
+              >
+                <SidebarMenuButton asChild tooltip={text}>
+                  <Link href={item.url as Route}>
                     <item.icon />
-                    <span>{item.name}</span>
-                  </a>
+                    <span>{text}</span>
+                  </Link>
                 </SidebarMenuButton>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
