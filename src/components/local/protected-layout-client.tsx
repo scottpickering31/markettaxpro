@@ -81,16 +81,40 @@ export default function ProtectedLayoutClient({
     React.useState(false);
 
   const handleConnectMarketplace = React.useCallback(
-    (marketplaceId: string) => {
+    (marketplaceId: string, marketplaceName: string) => {
       const marketplace = MARKETPLACE_CATALOG.find(
         (item) => item.id === marketplaceId
       );
       if (!marketplace) {
         return;
       }
-      setConnectedMarketplaces((prev) => [...prev, marketplace]);
+
+      setConnectedMarketplaces((prev) => {
+        const existing = prev.find((item) => item.id === marketplaceId);
+        const namedMarketplace = {
+          ...marketplace,
+          name: marketplaceName || marketplace.label,
+        };
+
+        if (existing) {
+          return prev.map((item) =>
+            item.id === marketplaceId ? { ...item, ...namedMarketplace } : item
+          );
+        }
+
+        return [...prev, namedMarketplace];
+      });
     },
     []
+  );
+
+  const availableMarketplaces = React.useMemo(
+    () =>
+      MARKETPLACE_CATALOG.filter(
+        (marketplace) =>
+          !connectedMarketplaces.some((item) => item.id === marketplace.id)
+      ),
+    [connectedMarketplaces]
   );
 
   return (
@@ -103,14 +127,14 @@ export default function ProtectedLayoutClient({
       <MarketplaceDialog
         open={isMarketplaceDialogOpen}
         onOpenChange={setIsMarketplaceDialogOpen}
-        marketplaces={MARKETPLACE_CATALOG.map((marketplace) => ({
+        marketplaces={availableMarketplaces.map((marketplace) => ({
           id: marketplace.id,
           name: marketplace.name,
           label: marketplace.label,
           description: marketplace.description,
         }))}
-        onConnect={(marketplaceId) => {
-          handleConnectMarketplace(marketplaceId);
+        onConnect={(marketplaceId, marketplaceName) => {
+          handleConnectMarketplace(marketplaceId, marketplaceName);
         }}
       />
 
