@@ -30,6 +30,7 @@ export function NavProjects({
   projects,
 }: {
   projects: {
+    id?: string;
     name: string;
     url: string;
     icon: LucideIcon;
@@ -43,47 +44,55 @@ export function NavProjects({
         <SidebarGroupLabel>Connected Marketplaces</SidebarGroupLabel>
       )}
       <SidebarMenu>
-        {projects.map((item) => (
-          <SidebarMenuItem key={item.name}>
-            <SidebarMenuButton asChild tooltip={item.name}>
-              <a href={item.url}>
-                <item.icon />
-                <span>{item.name}</span>
-              </a>
+        {projects.length === 0 ? (
+          <SidebarMenuItem>
+            <SidebarMenuButton disabled className="justify-start text-muted-foreground">
+              No marketplaces connected yet
             </SidebarMenuButton>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <SidebarMenuAction showOnHover>
-                  <MoreHorizontal />
-                  <span className="sr-only">More</span>
-                </SidebarMenuAction>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent
-                className="w-48 rounded-lg"
-                side={isMobile ? "bottom" : "right"}
-                align={isMobile ? "end" : "start"}
-              >
-                <DropdownMenuItem>
-                  <Folder className="text-muted-foreground" />
-                  <span>View Marketplace</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <Forward className="text-muted-foreground" />
-                  <span>Share Marketplace</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <Pencil className="text-muted-foreground" />
-                  <span>Rename Marketplace</span>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem>
-                  <Trash2 className="text-muted-foreground" />
-                  <span>Delete Marketplace</span>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
           </SidebarMenuItem>
-        ))}
+        ) : (
+          projects.map((item) => (
+            <SidebarMenuItem key={item.id ?? item.name}>
+              <SidebarMenuButton asChild tooltip={item.name}>
+                <a href={item.url}>
+                  <item.icon />
+                  <span>{item.name}</span>
+                </a>
+              </SidebarMenuButton>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <SidebarMenuAction showOnHover>
+                    <MoreHorizontal />
+                    <span className="sr-only">More</span>
+                  </SidebarMenuAction>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent
+                  className="w-48 rounded-lg"
+                  side={isMobile ? "bottom" : "right"}
+                  align={isMobile ? "end" : "start"}
+                >
+                  <DropdownMenuItem>
+                    <Folder className="text-muted-foreground" />
+                    <span>View Marketplace</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>
+                    <Forward className="text-muted-foreground" />
+                    <span>Share Marketplace</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem>
+                    <Pencil className="text-muted-foreground" />
+                    <span>Rename Marketplace</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem>
+                    <Trash2 className="text-muted-foreground" />
+                    <span>Delete Marketplace</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </SidebarMenuItem>
+          ))
+        )}
       </SidebarMenu>
     </SidebarGroup>
   );
