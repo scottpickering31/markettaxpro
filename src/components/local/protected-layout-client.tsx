@@ -6,7 +6,11 @@ import {
   SidebarInset,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
-import { AppSidebar, type ConnectedMarketplace, type SidebarUser } from "@/components/local/app-sidebar";
+import {
+  AppSidebar,
+  type ConnectedMarketplace,
+  type SidebarUser,
+} from "@/components/local/app-sidebar";
 import { MarketplaceDialog } from "@/components/notifications/MarketplaceDialog";
 import { ModeToggle } from "@/components/ui/mode-toggle";
 import { Separator } from "@/components/ui/separator";
@@ -19,36 +23,43 @@ type MarketplaceCatalogItem = ConnectedMarketplace & {
 
 const MARKETPLACE_CATALOG: MarketplaceCatalogItem[] = [
   {
-    id: "etsy",
-    name: "Etsy Shop",
-    url: "/marketplaces/etsy",
-    icon: Store,
-    description: "Sync listings, orders, and deposits from your Etsy storefront.",
-  },
-  {
     id: "ebay",
-    name: "eBay Store",
+    label: "eBay Store",
+    name: "",
     url: "/marketplaces/ebay",
     icon: ShoppingCart,
     description: "Import eBay sales, fees, and payouts in a single click.",
   },
   {
+    id: "etsy",
+    label: "Etsy Shop",
+    name: "",
+    url: "/marketplaces/etsy",
+    icon: Store,
+    description:
+      "Sync listings, orders, and deposits from your Etsy storefront.",
+  },
+  {
     id: "shopify",
-    name: "Shopify Store",
+    label: "Shopify Store",
+    name: "",
     url: "/marketplaces/shopify",
     icon: ShoppingBag,
-    description: "Keep your Shopify orders, refunds, and taxes in sync automatically.",
+    description:
+      "Keep your Shopify orders, refunds, and taxes in sync automatically.",
   },
   {
     id: "amazon-handmade",
-    name: "Amazon Handmade",
+    label: "Amazon Handmade",
+    name: "",
     url: "/marketplaces/amazon-handmade",
     icon: Package,
-    description: "Bring over your Amazon Handmade settlements and fees for easy reconciliation.",
+    description:
+      "Bring over your Amazon Handmade settlements and fees for easy reconciliation.",
   },
 ];
 
-const DEFAULT_CONNECTED_IDS = ["etsy", "ebay"];
+const DEFAULT_CONNECTED_IDS = [""];
 
 type ProtectedLayoutClientProps = {
   sidebarUser: SidebarUser;
@@ -69,28 +80,20 @@ export default function ProtectedLayoutClient({
   const [isMarketplaceDialogOpen, setIsMarketplaceDialogOpen] =
     React.useState(false);
 
-  const availableMarketplaces = React.useMemo(
-    () =>
-      MARKETPLACE_CATALOG.filter(
-        (marketplace) =>
-          !connectedMarketplaces.some(
-            (connected) => connected.id === marketplace.id
-          )
-      ),
-    [connectedMarketplaces]
+  const handleConnectMarketplace = React.useCallback(
+    (marketplaceId: string) => {
+      const marketplace = MARKETPLACE_CATALOG.find(
+        (item) => item.id === marketplaceId
+      );
+
+      if (!marketplace) {
+        return;
+      }
+
+      setConnectedMarketplaces((prev) => [...prev, marketplace]);
+    },
+    []
   );
-
-  const handleConnectMarketplace = React.useCallback((marketplaceId: string) => {
-    const marketplace = MARKETPLACE_CATALOG.find(
-      (item) => item.id === marketplaceId
-    );
-
-    if (!marketplace) {
-      return;
-    }
-
-    setConnectedMarketplaces((prev) => [...prev, marketplace]);
-  }, []);
 
   return (
     <SidebarProvider>
@@ -99,13 +102,13 @@ export default function ProtectedLayoutClient({
         connectedMarketplaces={connectedMarketplaces}
         onAddMarketplace={() => setIsMarketplaceDialogOpen(true)}
       />
-
       <MarketplaceDialog
         open={isMarketplaceDialogOpen}
         onOpenChange={setIsMarketplaceDialogOpen}
-        marketplaces={availableMarketplaces.map((marketplace) => ({
+        marketplaces={MARKETPLACE_CATALOG.map((marketplace) => ({
           id: marketplace.id,
           name: marketplace.name,
+          label: marketplace.label,
           description: marketplace.description,
         }))}
         onConnect={(marketplaceId) => {

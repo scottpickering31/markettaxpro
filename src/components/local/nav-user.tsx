@@ -79,7 +79,7 @@ export function NavUser({
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuGroup>
-                <Link href="/">
+                <Link href="/pricing">
                   <DropdownMenuItem>
                     <Sparkles />
                     Upgrade to Pro

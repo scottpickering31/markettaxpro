@@ -36,7 +36,9 @@ export type ConnectedMarketplace = {
   id: string;
   name: string;
   url: string;
+  label: string;
   icon: LucideIcon;
+  connectionId?: string;
 };
 
 type AppSidebarProps = React.ComponentProps<typeof Sidebar> & {
