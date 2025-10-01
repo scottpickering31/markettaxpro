@@ -2,13 +2,7 @@
 "use client";
 
 import * as React from "react";
-import {
-  useEffect,
-  useState,
-  useCallback,
-  FormEvent,
-  useMemo,
-} from "react";
+import { useEffect, useState, useCallback, FormEvent, useMemo } from "react";
 import { Check, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -121,8 +115,8 @@ export function MarketplaceDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <form onSubmit={handleSubmit}>
-        <DialogContent className="sm:max-w-[480px]">
+      <DialogContent className="sm:max-w-[480px]">
+        <form onSubmit={handleSubmit}>
           <DialogHeader>
             <DialogTitle>Connect a marketplace</DialogTitle>
             <DialogDescription>
@@ -212,7 +206,10 @@ export function MarketplaceDialog({
                   </p>
                 </div>
                 <div className="grid gap-2">
-                  <label className="text-sm font-medium" htmlFor="marketplace-name">
+                  <label
+                    className="text-sm font-medium"
+                    htmlFor="marketplace-name"
+                  >
                     Marketplace name
                   </label>
                   <Input
@@ -225,8 +222,8 @@ export function MarketplaceDialog({
                     autoFocus
                   />
                   <p className="text-xs text-muted-foreground">
-                    This name will be shown in the sidebar to help you
-                    recognize the connection.
+                    This name will be shown in the sidebar to help you recognize
+                    the connection.
                   </p>
                 </div>
               </div>
@@ -248,10 +245,7 @@ export function MarketplaceDialog({
                 >
                   Back
                 </Button>
-                <Button
-                  type="submit"
-                  disabled={!marketplaceName.trim()}
-                >
+                <Button type="submit" disabled={!marketplaceName.trim()}>
                   Finish setup
                 </Button>
               </>
@@ -267,8 +261,8 @@ export function MarketplaceDialog({
               </Button>
             )}
           </DialogFooter>
-        </DialogContent>
-      </form>
+        </form>
+      </DialogContent>
     </Dialog>
   );
 }
