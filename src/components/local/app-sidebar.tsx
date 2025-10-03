@@ -8,7 +8,6 @@ import {
   Download,
   Plus,
   Star,
-  type LucideIcon,
 } from "lucide-react";
 import { NavMain } from "@/components/local/nav-main";
 import { NavProjects } from "@/components/local/nav-projects";
@@ -32,13 +31,15 @@ export type SidebarUser = {
   avatar_url?: string | null;
 };
 
+export type IconType = React.ElementType;
+
 export type ConnectedMarketplace = {
   id: string;
-  name: string;
-  url: string;
-  label: string;
-  icon: LucideIcon;
   connectionId?: string;
+  name: string;
+  label: string;
+  url: string;
+  icon: IconType;
 };
 
 type AppSidebarProps = React.ComponentProps<typeof Sidebar> & {

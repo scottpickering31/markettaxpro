@@ -1,14 +1,16 @@
+// components/local/nav-projects.tsx
 "use client";
 
+import Link from "next/link";
+import type { Route } from "next";
 import {
   Folder,
   Forward,
   MoreHorizontal,
   Trash2,
   Pencil,
-  type LucideIcon,
+  type Icon,
 } from "lucide-react";
-
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -25,19 +27,18 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-import Link from "next/link";
-import { Route } from "next";
+import { IconType } from "./app-sidebar";
 
 export function NavProjects({
   projects,
 }: {
   projects: {
-    id?: string;
+    id: string;
+    connectionId?: string;
     name: string;
     label?: string;
     url: string;
-    icon: LucideIcon;
-    connectionId?: string;
+    icon: IconType;
   }[];
 }) {
   const { isMobile, state } = useSidebar();
@@ -58,18 +59,30 @@ export function NavProjects({
             </SidebarMenuButton>
           </SidebarMenuItem>
         ) : (
-          projects.map((item, index) => {
+          projects.map((item) => {
             const text = item.name || item.label || "Untitled";
             return (
-              <SidebarMenuItem
-                key={item.connectionId ?? item.id ?? `${item.name}-${index}`}
-              >
+              <SidebarMenuItem key={item.connectionId}>
                 <SidebarMenuButton asChild tooltip={text}>
-                  <Link href={item.url as Route}>
+                  <Link
+                    href={{
+                      pathname: item.url as Route,
+                      query: { c: item.connectionId },
+                    }}
+                  >
+                    <item.icon className="h-8 w-8" aria-hidden />{" "}
+                    <span>{text}</span>
+                  </Link>
+
+                  {/*
+                  //  use a clean dynamic route instead:
+                  <Link href={`/marketplaces/${item.id}/${item.connectionId}` as Route}>
                     <item.icon />
                     <span>{text}</span>
                   </Link>
+                  */}
                 </SidebarMenuButton>
+
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <SidebarMenuAction showOnHover>

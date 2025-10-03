@@ -15,7 +15,10 @@ import { MarketplaceDialog } from "@/components/notifications/MarketplaceDialog"
 import { ModeToggle } from "@/components/ui/mode-toggle";
 import { Separator } from "@/components/ui/separator";
 import AutoBreadcrumbs from "@/components/nav/AutoBreadcrumbs";
-import { Store, ShoppingCart, ShoppingBag, Package } from "lucide-react";
+import Amazon from "public/amazon.svg";
+import Ebay from "public/ebay.svg";
+import Etsy from "public/etsy.svg";
+import Shopify from "public/shopify.svg";
 
 type MarketplaceCatalogItem = ConnectedMarketplace & {
   description: string;
@@ -27,7 +30,7 @@ const MARKETPLACE_CATALOG: MarketplaceCatalogItem[] = [
     label: "eBay Store",
     name: "",
     url: "/marketplaces/ebay",
-    icon: ShoppingCart,
+    icon: Ebay,
     description: "Import eBay sales, fees, and payouts in a single click.",
   },
   {
@@ -35,7 +38,7 @@ const MARKETPLACE_CATALOG: MarketplaceCatalogItem[] = [
     label: "Etsy Shop",
     name: "",
     url: "/marketplaces/etsy",
-    icon: Store,
+    icon: Etsy,
     description:
       "Sync listings, orders, and deposits from your Etsy storefront.",
   },
@@ -44,7 +47,7 @@ const MARKETPLACE_CATALOG: MarketplaceCatalogItem[] = [
     label: "Shopify Store",
     name: "",
     url: "/marketplaces/shopify",
-    icon: ShoppingBag,
+    icon: Shopify,
     description:
       "Keep your Shopify orders, refunds, and taxes in sync automatically.",
   },
@@ -53,7 +56,7 @@ const MARKETPLACE_CATALOG: MarketplaceCatalogItem[] = [
     label: "Amazon Handmade",
     name: "",
     url: "/marketplaces/amazon-handmade",
-    icon: Package,
+    icon: Amazon,
     description:
       "Bring over your Amazon Handmade settlements and fees for easy reconciliation.",
   },
@@ -82,40 +85,31 @@ export default function ProtectedLayoutClient({
 
   const handleConnectMarketplace = React.useCallback(
     (marketplaceId: string, marketplaceName: string) => {
-      const marketplace = MARKETPLACE_CATALOG.find(
-        (item) => item.id === marketplaceId
-      );
-      if (!marketplace) {
-        return;
-      }
+      const template = MARKETPLACE_CATALOG.find((i) => i.id === marketplaceId);
+      if (!template) return;
 
+      const connectionId = crypto.randomUUID();
       setConnectedMarketplaces((prev) => {
-        const existing = prev.find((item) => item.id === marketplaceId);
-        const namedMarketplace = {
-          ...marketplace,
-          name: marketplaceName || marketplace.label,
-        };
+        const baseName = marketplaceName?.trim() || template.label;
 
-        if (existing) {
-          return prev.map((item) =>
-            item.id === marketplaceId ? { ...item, ...namedMarketplace } : item
-          );
-        }
+        const sameTypeCount = prev.filter((c) => c.id === marketplaceId).length;
+        const finalName =
+          sameTypeCount > 0 ? `${baseName} #${sameTypeCount + 1}` : baseName;
 
-        return [...prev, namedMarketplace];
+        return [
+          ...prev,
+          {
+            ...template,
+            connectionId,
+            name: finalName,
+          },
+        ];
       });
     },
     []
   );
 
-  const availableMarketplaces = React.useMemo(
-    () =>
-      MARKETPLACE_CATALOG.filter(
-        (marketplace) =>
-          !connectedMarketplaces.some((item) => item.id === marketplace.id)
-      ),
-    [connectedMarketplaces]
-  );
+  const availableMarketplaces = MARKETPLACE_CATALOG;
 
   return (
     <SidebarProvider>
