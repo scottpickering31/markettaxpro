@@ -90,11 +90,22 @@ export default function ProtectedLayoutClient({
 
       const connectionId = crypto.randomUUID();
       setConnectedMarketplaces((prev) => {
-        const baseName = marketplaceName?.trim() || template.label;
+        const fallbackName = marketplaceName?.trim() || template.label;
+        const finalName = fallbackName.trim();
 
-        const sameTypeCount = prev.filter((c) => c.id === marketplaceId).length;
-        const finalName =
-          sameTypeCount > 0 ? `${baseName} #${sameTypeCount + 1}` : baseName;
+        if (!finalName) {
+          return prev;
+        }
+
+        const normalizedFinalName = finalName.trim().toLowerCase();
+        const alreadyExists = prev.some(
+          (connection) =>
+            connection.name.trim().toLowerCase() === normalizedFinalName
+        );
+
+        if (alreadyExists) {
+          return prev;
+        }
 
         return [
           ...prev,
@@ -127,6 +138,9 @@ export default function ProtectedLayoutClient({
           label: marketplace.label,
           description: marketplace.description,
         }))}
+        existingConnectionNames={connectedMarketplaces.map(
+          (marketplace) => marketplace.name
+        )}
         onConnect={(marketplaceId, marketplaceName) => {
           handleConnectMarketplace(marketplaceId, marketplaceName);
         }}

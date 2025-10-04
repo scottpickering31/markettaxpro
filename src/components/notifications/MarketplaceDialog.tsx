@@ -26,6 +26,7 @@ type MarketplaceDialogProps = {
     description: string;
     label: string;
   }[];
+  existingConnectionNames: string[];
   onConnect: (marketplaceId: string, marketplaceName: string) => void;
 };
 
@@ -37,6 +38,7 @@ export function MarketplaceDialog({
   open,
   onOpenChange,
   marketplaces,
+  existingConnectionNames,
   onConnect,
 }: MarketplaceDialogProps) {
   const [selectedMarketplace, setSelectedMarketplace] = useState<string | null>(
@@ -44,6 +46,33 @@ export function MarketplaceDialog({
   );
   const [step, setStep] = useState<DialogStep>("select");
   const [marketplaceName, setMarketplaceName] = useState("");
+
+  const normalizedExistingNames = useMemo(() => {
+    return new Set(
+      existingConnectionNames
+        .map((name) => name.trim().toLowerCase())
+        .filter((name) => name.length > 0)
+    );
+  }, [existingConnectionNames]);
+
+  const trimmedMarketplaceName = marketplaceName.trim();
+  const isDuplicateName =
+    trimmedMarketplaceName.length > 0 &&
+    normalizedExistingNames.has(trimmedMarketplaceName.toLowerCase());
+  const nameError =
+    step === "details"
+      ? trimmedMarketplaceName.length === 0
+        ? "Enter a marketplace name."
+        : isDuplicateName
+        ? "A marketplace with this name already exists. Choose a different name."
+        : null
+      : null;
+  const canSubmit =
+    step === "details" && trimmedMarketplaceName.length > 0 && !isDuplicateName;
+  const nameDescriptionId = "marketplace-name-description";
+  const nameInputDescribedBy = nameError
+    ? `${nameDescriptionId} marketplace-name-error`
+    : nameDescriptionId;
 
   const selectedMarketplaceDetails = useMemo(
     () => marketplaces.find((m) => m.id === selectedMarketplace) ?? null,
@@ -89,7 +118,12 @@ export function MarketplaceDialog({
         selectedMarketplaceDetails?.label ??
         selectedMarketplaceDetails?.name ??
         "";
-      onConnect(selectedMarketplace, trimmedName || fallbackName);
+      const finalName = trimmedName || fallbackName;
+      if (!finalName.trim()) return;
+      if (normalizedExistingNames.has(finalName.trim().toLowerCase())) {
+        return;
+      }
+      onConnect(selectedMarketplace, finalName);
       onOpenChange(false);
     },
     [
@@ -99,6 +133,7 @@ export function MarketplaceDialog({
       marketplaceName,
       step,
       selectedMarketplaceDetails,
+      normalizedExistingNames,
     ]
   );
 
@@ -219,18 +254,28 @@ export function MarketplaceDialog({
                     placeholder={
                       selectedMarketplaceDetails?.label ?? "My marketplace"
                     }
+                    className={cn(
+                      nameError &&
+                        "border-destructive focus-visible:ring-destructive"
+                    )}
+                    aria-invalid={nameError ? true : undefined}
+                    aria-describedby={nameInputDescribedBy}
                     autoFocus
                   />
-                  <p className="text-xs text-muted-foreground">
-                    This name will be shown in the sidebar to help you recognize
-                    the connection.
-                  </p>
+                  {nameError ? (
+                    <p
+                      id="marketplace-name-error"
+                      className="text-xs text-destructive"
+                    >
+                      {nameError}
+                    </p>
+                  ) : null}
                 </div>
               </div>
             </div>
           )}
 
-          <DialogFooter>
+          <DialogFooter className="mt-4">
             <DialogClose asChild>
               <Button type="button" variant="outline">
                 Cancel
@@ -245,7 +290,7 @@ export function MarketplaceDialog({
                 >
                   Back
                 </Button>
-                <Button type="submit" disabled={!marketplaceName.trim()}>
+                <Button type="submit" disabled={!canSubmit}>
                   Finish setup
                 </Button>
               </>
