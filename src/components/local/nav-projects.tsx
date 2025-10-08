@@ -1,16 +1,8 @@
-// components/local/nav-projects.tsx
 "use client";
 
 import Link from "next/link";
 import type { Route } from "next";
-import {
-  Folder,
-  Forward,
-  MoreHorizontal,
-  Trash2,
-  Pencil,
-  type Icon,
-} from "lucide-react";
+import { Forward, MoreHorizontal, Trash2, Pencil } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -28,20 +20,48 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { IconType } from "./app-sidebar";
+import * as React from "react";
+import { useState } from "react";
+import DeleteMarketplaceDialog from "@/components/dialogs/DeleteMarketplaceDialog";
+import { DELETE_MARKETPLACE } from "@/api/marketplace/DeleteMarketplace";
 
-export function NavProjects({
-  projects,
-}: {
-  projects: {
-    id: string;
-    connectionId?: string;
-    name: string;
-    label?: string;
-    url: string;
-    icon: IconType;
-  }[];
-}) {
+type Project = {
+  id: string;
+  connectionId?: string;
+  name: string;
+  label?: string;
+  url: string;
+  icon: IconType;
+};
+
+export function NavProjects({ projects }: { projects: Project[] }) {
   const { isMobile, state } = useSidebar();
+
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [target, setTarget] = useState<Project | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const handleDeleteClick = (item: Project) => {
+    setTarget(item);
+    setDeleteOpen(true);
+  };
+
+  const doDelete = async () => {
+    if (!target) return;
+    try {
+      setIsDeleting(true);
+      DELETE_MARKETPLACE(target.name);
+      // TODO: Replace with your real deletion logic
+      // e.g., await api.marketplaces.delete({ id: target.id, connectionId: target.connectionId })
+      // Optional: router.refresh() or navigate away if on that page
+      // For demo:
+      await new Promise((r) => setTimeout(r, 900));
+      // If you're on the deleted marketplace's page, you might redirect:
+      // router.push("/marketplaces" as Route);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   return (
     <SidebarGroup>
@@ -70,17 +90,9 @@ export function NavProjects({
                       query: { c: item.connectionId },
                     }}
                   >
-                    <item.icon className="h-8 w-8" aria-hidden />{" "}
+                    <item.icon className="h-8 w-8" aria-hidden />
                     <span>{text}</span>
                   </Link>
-
-                  {/*
-                  //  use a clean dynamic route instead:
-                  <Link href={`/marketplaces/${item.id}/${item.connectionId}` as Route}>
-                    <item.icon />
-                    <span>{text}</span>
-                  </Link>
-                  */}
                 </SidebarMenuButton>
 
                 <DropdownMenu>
@@ -96,10 +108,6 @@ export function NavProjects({
                     align={isMobile ? "end" : "start"}
                   >
                     <DropdownMenuItem>
-                      <Folder className="text-muted-foreground" />
-                      <span>View Marketplace</span>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem>
                       <Forward className="text-muted-foreground" />
                       <span>Share Marketplace</span>
                     </DropdownMenuItem>
@@ -108,7 +116,10 @@ export function NavProjects({
                       <span>Rename Marketplace</span>
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => handleDeleteClick(item)}
+                      className="text-destructive focus:text-destructive"
+                    >
                       <Trash2 className="text-muted-foreground" />
                       <span>Delete Marketplace</span>
                     </DropdownMenuItem>
@@ -119,6 +130,15 @@ export function NavProjects({
           })
         )}
       </SidebarMenu>
+
+      {/* Controlled dialog lives once, outside the map */}
+      <DeleteMarketplaceDialog
+        open={deleteOpen}
+        onOpenChange={setDeleteOpen}
+        marketplaceName={target?.name || target?.label || ""}
+        onConfirm={doDelete}
+        isLoading={isDeleting}
+      />
     </SidebarGroup>
   );
 }

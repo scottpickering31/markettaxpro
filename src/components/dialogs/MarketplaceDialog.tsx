@@ -16,6 +16,8 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+import { ADD_MARKETPLACE } from "@/api/marketplace/AddMarketplace";
+import { useRouter } from "next/navigation";
 
 type MarketplaceDialogProps = {
   open: boolean;
@@ -27,8 +29,13 @@ type MarketplaceDialogProps = {
     label: string;
   }[];
   existingConnectionNames: string[];
-  onConnect: (marketplaceId: string, marketplaceName: string) => void;
+  onConnect: (
+    marketplaceId: string,
+    marketplaceName: string,
+    platform: string
+  ) => void;
 };
+const router = useRouter();
 
 const COMING_SOON = new Set(["shopify", "amazon-handmade"]);
 
@@ -39,13 +46,17 @@ export function MarketplaceDialog({
   onOpenChange,
   marketplaces,
   existingConnectionNames,
-  onConnect,
 }: MarketplaceDialogProps) {
   const [selectedMarketplace, setSelectedMarketplace] = useState<string | null>(
     null
   );
   const [step, setStep] = useState<DialogStep>("select");
   const [marketplaceName, setMarketplaceName] = useState("");
+
+  const onConnect = async (marketplaceId: string, marketplaceName: string, platform: string) => {
+    await ADD_MARKETPLACE({ marketplaceName, platform });
+    router.refresh(); // revalidate server components that read from DB
+  };
 
   const normalizedExistingNames = useMemo(() => {
     return new Set(
@@ -123,7 +134,7 @@ export function MarketplaceDialog({
       if (normalizedExistingNames.has(finalName.trim().toLowerCase())) {
         return;
       }
-      onConnect(selectedMarketplace, finalName);
+      onConnect(selectedMarketplace, finalName, selectedMarketplace);
       onOpenChange(false);
     },
     [
@@ -291,7 +302,7 @@ export function MarketplaceDialog({
                   Back
                 </Button>
                 <Button type="submit" disabled={!canSubmit}>
-                  Finish setup
+                  Add Marketplace
                 </Button>
               </>
             ) : (

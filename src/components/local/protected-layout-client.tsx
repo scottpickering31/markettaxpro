@@ -11,7 +11,7 @@ import {
   type ConnectedMarketplace,
   type SidebarUser,
 } from "@/components/local/app-sidebar";
-import { MarketplaceDialog } from "@/components/notifications/MarketplaceDialog";
+import { MarketplaceDialog } from "@/components/dialogs/MarketplaceDialog";
 import { ModeToggle } from "@/components/ui/mode-toggle";
 import { Separator } from "@/components/ui/separator";
 import AutoBreadcrumbs from "@/components/nav/AutoBreadcrumbs";
