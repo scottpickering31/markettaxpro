@@ -23,10 +23,12 @@ import { IconType } from "./app-sidebar";
 import * as React from "react";
 import { useState } from "react";
 import DeleteMarketplaceDialog from "@/components/dialogs/DeleteMarketplaceDialog";
-import { DELETE_MARKETPLACE } from "@/api/marketplace/DeleteMarketplace";
+import { deleteMarketplaceAction } from "@/app/(protected)/marketplaces/actions";
+import { useRouter } from "next/navigation";
 
 type Project = {
   id: string;
+  dbId?: string;
   connectionId?: string;
   name: string;
   label?: string;
@@ -34,30 +36,30 @@ type Project = {
   icon: IconType;
 };
 
-export function NavProjects({ projects }: { projects: Project[] }) {
+export function NavProjects({
+  projects,
+  onAfterDelete,
+}: {
+  projects: Project[];
+  onAfterDelete?: (dbId?: string, name?: string) => void;
+}) {
   const { isMobile, state } = useSidebar();
-
+  const router = useRouter();
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [target, setTarget] = useState<Project | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  const handleDeleteClick = (item: Project) => {
-    setTarget(item);
-    setDeleteOpen(true);
-  };
-
   const doDelete = async () => {
     if (!target) return;
+    setIsDeleting(true);
     try {
-      setIsDeleting(true);
-      DELETE_MARKETPLACE(target.name);
-      // TODO: Replace with your real deletion logic
-      // e.g., await api.marketplaces.delete({ id: target.id, connectionId: target.connectionId })
-      // Optional: router.refresh() or navigate away if on that page
-      // For demo:
-      await new Promise((r) => setTimeout(r, 900));
-      // If you're on the deleted marketplace's page, you might redirect:
-      // router.push("/marketplaces" as Route);
+      await deleteMarketplaceAction({
+        id: target.dbId,
+        marketplaceName: target.name,
+      });
+      onAfterDelete?.(target.dbId, target.name);
+      setDeleteOpen(false);
+      router.refresh();
     } finally {
       setIsDeleting(false);
     }
@@ -117,7 +119,7 @@ export function NavProjects({ projects }: { projects: Project[] }) {
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem
-                      onClick={() => handleDeleteClick(item)}
+                      onClick={doDelete}
                       className="text-destructive focus:text-destructive"
                     >
                       <Trash2 className="text-muted-foreground" />

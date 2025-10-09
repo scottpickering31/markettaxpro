@@ -34,8 +34,9 @@ export type SidebarUser = {
 export type IconType = React.ElementType;
 
 export type ConnectedMarketplace = {
-  id: string;
-  connectionId?: string;
+  id: string;      
+  dbId?: string;        
+  connectionId?: string; 
   name: string;
   label: string;
   url: string;

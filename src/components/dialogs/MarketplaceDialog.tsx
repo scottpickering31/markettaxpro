@@ -16,12 +16,12 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-import { ADD_MARKETPLACE } from "@/api/marketplace/AddMarketplace";
+import { addMarketplaceAction } from "@/app/(protected)/marketplaces/actions";
 import { useRouter } from "next/navigation";
 
-type MarketplaceDialogProps = {
+type Props = {
   open: boolean;
-  onOpenChange: (open: boolean) => void;
+  onOpenChange: (o: boolean) => void;
   marketplaces: {
     id: string;
     name: string;
@@ -29,16 +29,13 @@ type MarketplaceDialogProps = {
     label: string;
   }[];
   existingConnectionNames: string[];
-  onConnect: (
-    marketplaceId: string,
-    marketplaceName: string,
-    platform: string
-  ) => void;
+  onConnect?: (args: {
+    id: string;
+    marketplaceId: string;
+    marketplaceName: string;
+  }) => void;
 };
-const router = useRouter();
-
 const COMING_SOON = new Set(["shopify", "amazon-handmade"]);
-
 type DialogStep = "select" | "details";
 
 export function MarketplaceDialog({
@@ -46,118 +43,134 @@ export function MarketplaceDialog({
   onOpenChange,
   marketplaces,
   existingConnectionNames,
-}: MarketplaceDialogProps) {
+  onConnect,
+}: Props) {
+  const router = useRouter();
+
   const [selectedMarketplace, setSelectedMarketplace] = useState<string | null>(
     null
   );
   const [step, setStep] = useState<DialogStep>("select");
   const [marketplaceName, setMarketplaceName] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [submitErr, setSubmitErr] = useState<string | null>(null);
 
-  const onConnect = async (marketplaceId: string, marketplaceName: string, platform: string) => {
-    await ADD_MARKETPLACE({ marketplaceName, platform });
-    router.refresh(); // revalidate server components that read from DB
-  };
-
-  const normalizedExistingNames = useMemo(() => {
-    return new Set(
-      existingConnectionNames
-        .map((name) => name.trim().toLowerCase())
-        .filter((name) => name.length > 0)
-    );
-  }, [existingConnectionNames]);
-
-  const trimmedMarketplaceName = marketplaceName.trim();
-  const isDuplicateName =
-    trimmedMarketplaceName.length > 0 &&
-    normalizedExistingNames.has(trimmedMarketplaceName.toLowerCase());
-  const nameError =
-    step === "details"
-      ? trimmedMarketplaceName.length === 0
-        ? "Enter a marketplace name."
-        : isDuplicateName
-        ? "A marketplace with this name already exists. Choose a different name."
-        : null
-      : null;
-  const canSubmit =
-    step === "details" && trimmedMarketplaceName.length > 0 && !isDuplicateName;
-  const nameDescriptionId = "marketplace-name-description";
-  const nameInputDescribedBy = nameError
-    ? `${nameDescriptionId} marketplace-name-error`
-    : nameDescriptionId;
+  const normalizedExistingNames = useMemo(
+    () =>
+      new Set(
+        existingConnectionNames
+          .map((n) => n.trim().toLowerCase())
+          .filter(Boolean)
+      ),
+    [existingConnectionNames]
+  );
 
   const selectedMarketplaceDetails = useMemo(
     () => marketplaces.find((m) => m.id === selectedMarketplace) ?? null,
     [marketplaces, selectedMarketplace]
   );
 
-  // When dialog opens, preselect the first *enabled* marketplace
+  const trimmed = marketplaceName.trim();
+  const isDuplicate =
+    trimmed.length > 0 && normalizedExistingNames.has(trimmed.toLowerCase());
+  const nameError =
+    step === "details"
+      ? trimmed.length === 0
+        ? "Enter a marketplace name."
+        : isDuplicate
+        ? "A marketplace with this name already exists. Choose a different name."
+        : null
+      : null;
+  const canSubmit =
+    step === "details" && trimmed.length > 0 && !isDuplicate && !submitting;
+
   useEffect(() => {
     if (!open) {
       setStep("select");
       setSelectedMarketplace(null);
       setMarketplaceName("");
+      setSubmitErr(null);
       return;
     }
-
     const firstEnabled = marketplaces.find((m) => !COMING_SOON.has(m.id));
-    setStep("select");
     setSelectedMarketplace(firstEnabled?.id ?? null);
     setMarketplaceName(firstEnabled?.label ?? firstEnabled?.name ?? "");
   }, [open, marketplaces]);
 
   useEffect(() => {
-    if (!open) return;
-    if (step !== "select") return;
-
+    if (!open || step !== "select") return;
     if (!selectedMarketplace) {
       setMarketplaceName("");
       return;
     }
-
     const selected = marketplaces.find((m) => m.id === selectedMarketplace);
     setMarketplaceName(selected?.label ?? selected?.name ?? "");
   }, [open, step, selectedMarketplace, marketplaces]);
 
-  const handleSubmit = useCallback(
-    (event: FormEvent<HTMLFormElement>) => {
-      event.preventDefault();
-      if (step !== "details") return;
-      if (!selectedMarketplace) return;
-      if (COMING_SOON.has(selectedMarketplace)) return;
-      const trimmedName = marketplaceName.trim();
-      const fallbackName =
-        selectedMarketplaceDetails?.label ??
-        selectedMarketplaceDetails?.name ??
-        "";
-      const finalName = trimmedName || fallbackName;
-      if (!finalName.trim()) return;
-      if (normalizedExistingNames.has(finalName.trim().toLowerCase())) {
-        return;
-      }
-      onConnect(selectedMarketplace, finalName, selectedMarketplace);
-      onOpenChange(false);
-    },
-    [
-      onConnect,
-      onOpenChange,
-      selectedMarketplace,
-      marketplaceName,
-      step,
-      selectedMarketplaceDetails,
-      normalizedExistingNames,
-    ]
-  );
-
   const handleProceedToDetails = useCallback(() => {
-    if (!selectedMarketplace) return;
-    if (COMING_SOON.has(selectedMarketplace)) return;
-    const fallbackName =
+    if (!selectedMarketplace || COMING_SOON.has(selectedMarketplace)) return;
+    const fallback =
       selectedMarketplaceDetails?.label ??
       selectedMarketplaceDetails?.name ??
       "";
-    setMarketplaceName((current) => current || fallbackName);
+    setMarketplaceName((curr) => curr || fallback);
     setStep("details");
   }, [selectedMarketplace, selectedMarketplaceDetails]);
+
+  const handleSubmit = useCallback(
+    async (e: FormEvent<HTMLFormElement>) => {
+      e.preventDefault();
+      if (
+        step !== "details" ||
+        !selectedMarketplace ||
+        COMING_SOON.has(selectedMarketplace)
+      )
+        return;
+
+      const fallback =
+        selectedMarketplaceDetails?.label ??
+        selectedMarketplaceDetails?.name ??
+        "";
+      const finalName = (marketplaceName || fallback).trim();
+      if (!finalName || normalizedExistingNames.has(finalName.toLowerCase()))
+        return;
+
+      setSubmitting(true);
+      setSubmitErr(null);
+      try {
+        // 1) write to DB (server action)
+        const res = await addMarketplaceAction({
+          marketplaceName: finalName,
+          platform: selectedMarketplace, // your marketplace id (etsy/ebay/etc)
+        });
+
+        // Optimistic UI in parent with real DB id
+        onConnect?.({
+          id: res.id,
+          marketplaceId: selectedMarketplace,
+          marketplaceName: finalName,
+        });
+
+        // 3) close & refresh
+        onOpenChange(false);
+        router.refresh();
+      } catch (err: any) {
+        setSubmitErr(err?.message ?? "Failed to add marketplace");
+      } finally {
+        setSubmitting(false);
+      }
+    },
+    [
+      step,
+      selectedMarketplace,
+      selectedMarketplaceDetails,
+      marketplaceName,
+      normalizedExistingNames,
+      onOpenChange,
+      router,
+      onConnect, // ✅ include in deps
+    ]
+  );
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -270,7 +283,6 @@ export function MarketplaceDialog({
                         "border-destructive focus-visible:ring-destructive"
                     )}
                     aria-invalid={nameError ? true : undefined}
-                    aria-describedby={nameInputDescribedBy}
                     autoFocus
                   />
                   {nameError ? (
@@ -285,6 +297,10 @@ export function MarketplaceDialog({
               </div>
             </div>
           )}
+
+          {step === "details" && submitErr ? (
+            <p className="text-xs text-destructive">{submitErr}</p>
+          ) : null}
 
           <DialogFooter className="mt-4">
             <DialogClose asChild>

@@ -13,9 +13,9 @@ import {
   checkHasLocalPassword,
   finalizeLocalPassword,
 } from "@/app/(auth)/actions.localPassword";
-import Google from "../../../public/google.svg";
-import Microsoft from "../../../public/microsoft.svg";
-import Facebook from "../../../public/facebook.svg";
+import Google from "@/components/svgs/google.svg";
+import Microsoft from "@/components/svgs/microsoft.svg";
+import Facebook from "@/components/svgs/facebook.svg";
 import {
   InputOTP,
   InputOTPGroup,

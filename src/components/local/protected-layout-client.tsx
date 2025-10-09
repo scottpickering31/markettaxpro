@@ -15,10 +15,10 @@ import { MarketplaceDialog } from "@/components/dialogs/MarketplaceDialog";
 import { ModeToggle } from "@/components/ui/mode-toggle";
 import { Separator } from "@/components/ui/separator";
 import AutoBreadcrumbs from "@/components/nav/AutoBreadcrumbs";
-import Amazon from "public/amazon.svg";
-import Ebay from "public/ebay.svg";
-import Etsy from "public/etsy.svg";
-import Shopify from "public/shopify.svg";
+import Amazon from "@/components/svgs/amazon.svg";
+import Ebay from "@/components/svgs/ebay.svg";
+import Etsy from "@/components/svgs/etsy.svg";
+import Shopify from "@/components/svgs/shopify.svg";
 
 type MarketplaceCatalogItem = ConnectedMarketplace & {
   description: string;
@@ -66,84 +66,77 @@ const DEFAULT_CONNECTED_IDS = [""];
 
 type ProtectedLayoutClientProps = {
   sidebarUser: SidebarUser;
+  connectedFromDb: ConnectedMarketplace[];
   children: React.ReactNode;
 };
 
 export default function ProtectedLayoutClient({
   sidebarUser,
+  connectedFromDb,
   children,
 }: ProtectedLayoutClientProps) {
-  const [connectedMarketplaces, setConnectedMarketplaces] = React.useState<
-    ConnectedMarketplace[]
-  >(() =>
-    MARKETPLACE_CATALOG.filter((marketplace) =>
-      DEFAULT_CONNECTED_IDS.includes(marketplace.id)
-    )
-  );
   const [isMarketplaceDialogOpen, setIsMarketplaceDialogOpen] =
     React.useState(false);
 
-  const handleConnectMarketplace = React.useCallback(
-    (marketplaceId: string, marketplaceName: string) => {
-      const template = MARKETPLACE_CATALOG.find((i) => i.id === marketplaceId);
-      if (!template) return;
+  // const handleConnectMarketplace = React.useCallback(
+  //   ({
+  //     id,
+  //     marketplaceId,
+  //     marketplaceName,
+  //   }: {
+  //     id: string;
+  //     marketplaceId: string;
+  //     marketplaceName: string;
+  //   }) => {
+  //     const template = MARKETPLACE_CATALOG.find((i) => i.id === marketplaceId);
+  //     if (!template) return;
 
-      const connectionId = crypto.randomUUID();
-      setConnectedMarketplaces((prev) => {
-        const fallbackName = marketplaceName?.trim() || template.label;
-        const finalName = fallbackName.trim();
+  //     setConnectedMarketplaces((prev) => {
+  //       const finalName = (marketplaceName?.trim() || template.label).trim();
+  //       if (!finalName) return prev;
 
-        if (!finalName) {
-          return prev;
-        }
+  //       const normalized = finalName.toLowerCase();
+  //       if (prev.some((c) => c.name.trim().toLowerCase() === normalized))
+  //         return prev;
 
-        const normalizedFinalName = finalName.trim().toLowerCase();
-        const alreadyExists = prev.some(
-          (connection) =>
-            connection.name.trim().toLowerCase() === normalizedFinalName
-        );
+  //       return [
+  //         ...prev,
+  //         {
+  //           ...template,
+  //           dbId: id,
+  //           name: finalName,
+  //         },
+  //       ];
+  //     });
+  //   },
+  //   []
+  // );
 
-        if (alreadyExists) {
-          return prev;
-        }
+  // const availableMarketplaces = MARKETPLACE_CATALOG;
 
-        return [
-          ...prev,
-          {
-            ...template,
-            connectionId,
-            name: finalName,
-          },
-        ];
-      });
-    },
-    []
+  const existingNames = React.useMemo(
+    () => connectedFromDb.map((m) => m.name),
+    [connectedFromDb]
   );
-
-  const availableMarketplaces = MARKETPLACE_CATALOG;
 
   return (
     <SidebarProvider>
       <AppSidebar
         user={sidebarUser}
-        connectedMarketplaces={connectedMarketplaces}
+        connectedMarketplaces={connectedFromDb}
         onAddMarketplace={() => setIsMarketplaceDialogOpen(true)}
       />
+
       <MarketplaceDialog
         open={isMarketplaceDialogOpen}
         onOpenChange={setIsMarketplaceDialogOpen}
-        marketplaces={availableMarketplaces.map((marketplace) => ({
-          id: marketplace.id,
-          name: marketplace.name,
-          label: marketplace.label,
-          description: marketplace.description,
+        marketplaces={MARKETPLACE_CATALOG.map((m) => ({
+          id: m.id,
+          name: m.name,
+          label: m.label,
+          description: m.description,
         }))}
-        existingConnectionNames={connectedMarketplaces.map(
-          (marketplace) => marketplace.name
-        )}
-        onConnect={(marketplaceId, marketplaceName) => {
-          handleConnectMarketplace(marketplaceId, marketplaceName);
-        }}
+        existingConnectionNames={existingNames}
       />
 
       <SidebarInset>
@@ -152,7 +145,6 @@ export default function ProtectedLayoutClient({
             <SidebarTrigger className="-ml-1" />
             <ModeToggle />
             <Separator orientation="vertical" className="mr-2 h-4" />
-
             <AutoBreadcrumbs
               labelMap={{
                 transactions: "Transactions",
@@ -163,7 +155,6 @@ export default function ProtectedLayoutClient({
             />
           </div>
         </header>
-
         <div className="flex flex-1 flex-col gap-4 px-4 pt-0">{children}</div>
       </SidebarInset>
     </SidebarProvider>
