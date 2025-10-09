@@ -41,6 +41,7 @@ export type ConnectedMarketplace = {
   label: string;
   url: string;
   icon: IconType;
+  description: string;
 };
 
 type AppSidebarProps = React.ComponentProps<typeof Sidebar> & {

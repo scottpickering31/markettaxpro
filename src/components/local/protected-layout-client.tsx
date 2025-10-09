@@ -1,3 +1,4 @@
+// components/local/protected-layout-client.tsx
 "use client";
 
 import * as React from "react";
@@ -15,104 +16,88 @@ import { MarketplaceDialog } from "@/components/dialogs/MarketplaceDialog";
 import { ModeToggle } from "@/components/ui/mode-toggle";
 import { Separator } from "@/components/ui/separator";
 import AutoBreadcrumbs from "@/components/nav/AutoBreadcrumbs";
+
+// Import SVGs here (client)
 import Amazon from "@/components/svgs/amazon.svg";
 import Ebay from "@/components/svgs/ebay.svg";
 import Etsy from "@/components/svgs/etsy.svg";
 import Shopify from "@/components/svgs/shopify.svg";
 
-type MarketplaceCatalogItem = ConnectedMarketplace & {
-  description: string;
-};
+type Platform = "ebay" | "etsy" | "shopify" | "amazon-handmade";
 
-const MARKETPLACE_CATALOG: MarketplaceCatalogItem[] = [
+const CATALOG: Record<
+  Platform,
   {
-    id: "ebay",
+    label: string;
+    url: string;
+    icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
+    description: string;
+  }
+> = {
+  ebay: {
     label: "eBay Store",
-    name: "",
     url: "/marketplaces/ebay",
     icon: Ebay,
     description: "Import eBay sales, fees, and payouts in a single click.",
   },
-  {
-    id: "etsy",
+  etsy: {
     label: "Etsy Shop",
-    name: "",
     url: "/marketplaces/etsy",
     icon: Etsy,
     description:
       "Sync listings, orders, and deposits from your Etsy storefront.",
   },
-  {
-    id: "shopify",
+  shopify: {
     label: "Shopify Store",
-    name: "",
     url: "/marketplaces/shopify",
     icon: Shopify,
     description:
       "Keep your Shopify orders, refunds, and taxes in sync automatically.",
   },
-  {
-    id: "amazon-handmade",
+  "amazon-handmade": {
     label: "Amazon Handmade",
-    name: "",
     url: "/marketplaces/amazon-handmade",
     icon: Amazon,
     description:
       "Bring over your Amazon Handmade settlements and fees for easy reconciliation.",
   },
-];
+};
 
-const DEFAULT_CONNECTED_IDS = [""];
+type Row = { platform: Platform; dbId: string; name: string };
 
-type ProtectedLayoutClientProps = {
+type Props = {
   sidebarUser: SidebarUser;
-  connectedFromDb: ConnectedMarketplace[];
+  connectedRows: Row[];
   children: React.ReactNode;
 };
 
 export default function ProtectedLayoutClient({
   sidebarUser,
-  connectedFromDb,
+  connectedRows,
   children,
-}: ProtectedLayoutClientProps) {
+}: Props) {
   const [isMarketplaceDialogOpen, setIsMarketplaceDialogOpen] =
     React.useState(false);
 
-  // const handleConnectMarketplace = React.useCallback(
-  //   ({
-  //     id,
-  //     marketplaceId,
-  //     marketplaceName,
-  //   }: {
-  //     id: string;
-  //     marketplaceId: string;
-  //     marketplaceName: string;
-  //   }) => {
-  //     const template = MARKETPLACE_CATALOG.find((i) => i.id === marketplaceId);
-  //     if (!template) return;
-
-  //     setConnectedMarketplaces((prev) => {
-  //       const finalName = (marketplaceName?.trim() || template.label).trim();
-  //       if (!finalName) return prev;
-
-  //       const normalized = finalName.toLowerCase();
-  //       if (prev.some((c) => c.name.trim().toLowerCase() === normalized))
-  //         return prev;
-
-  //       return [
-  //         ...prev,
-  //         {
-  //           ...template,
-  //           dbId: id,
-  //           name: finalName,
-  //         },
-  //       ];
-  //     });
-  //   },
-  //   []
-  // );
-
-  // const availableMarketplaces = MARKETPLACE_CATALOG;
+  // Enrich rows with UI metadata (including the icon component) **on the client**
+  const connectedFromDb = React.useMemo<ConnectedMarketplace[]>(
+    () =>
+      connectedRows
+        .filter((r) => r.platform in CATALOG)
+        .map((r) => {
+          const meta = CATALOG[r.platform];
+          return {
+            id: r.platform, // platform id
+            dbId: r.dbId,
+            name: r.name,
+            label: meta.label,
+            url: meta.url,
+            icon: meta.icon, // safe to use in client now
+            description: meta.description,
+          };
+        }),
+    [connectedRows]
+  );
 
   const existingNames = React.useMemo(
     () => connectedFromDb.map((m) => m.name),
@@ -130,11 +115,11 @@ export default function ProtectedLayoutClient({
       <MarketplaceDialog
         open={isMarketplaceDialogOpen}
         onOpenChange={setIsMarketplaceDialogOpen}
-        marketplaces={MARKETPLACE_CATALOG.map((m) => ({
-          id: m.id,
-          name: m.name,
-          label: m.label,
-          description: m.description,
+        marketplaces={Object.entries(CATALOG).map(([id, meta]) => ({
+          id,
+          name: "",
+          label: meta.label,
+          description: meta.description, // add if needed
         }))}
         existingConnectionNames={existingNames}
       />

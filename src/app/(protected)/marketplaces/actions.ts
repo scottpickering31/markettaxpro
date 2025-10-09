@@ -73,3 +73,30 @@ export async function deleteMarketplaceAction(input: {
   if (error) throw new Error(error.message);
   return { ok: true };
 }
+
+export async function renameMarketplaceAction(input: {
+  id: string;
+  newName: string;
+}) {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) throw new Error("Not authenticated");
+
+  const { error } = await supabase
+    .from("marketplace_accounts")
+    .update({ marketplace_name: input.newName })
+    .eq("id", input.id)
+    .eq("user_id", user.id);
+
+  if (error) {
+    if ((error as any).code === "23505") {
+      throw new Error("A marketplace with this name already exists.");
+    }
+    throw new Error(error.message);
+  }
+
+  return { ok: true };
+}

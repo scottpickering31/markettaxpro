@@ -18,6 +18,7 @@ import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { addMarketplaceAction } from "@/app/(protected)/marketplaces/actions";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 type Props = {
   open: boolean;
@@ -151,6 +152,10 @@ export function MarketplaceDialog({
           marketplaceName: finalName,
         });
 
+        toast.success("Marketplace connected", {
+          description: `${finalName} has been added to your account.`,
+        });
+
         // 3) close & refresh
         onOpenChange(false);
         router.refresh();
@@ -168,7 +173,7 @@ export function MarketplaceDialog({
       normalizedExistingNames,
       onOpenChange,
       router,
-      onConnect, // ✅ include in deps
+      onConnect,
     ]
   );
 

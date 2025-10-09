@@ -23,8 +23,10 @@ import { IconType } from "./app-sidebar";
 import * as React from "react";
 import { useState } from "react";
 import DeleteMarketplaceDialog from "@/components/dialogs/DeleteMarketplaceDialog";
-import { deleteMarketplaceAction } from "@/app/(protected)/marketplaces/actions";
+import { deleteMarketplaceAction, renameMarketplaceAction } from "@/app/(protected)/marketplaces/actions";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import RenameMarketplaceDialog from "../dialogs/RenameMarketplaceDialog";
 
 type Project = {
   id: string;
@@ -48,6 +50,35 @@ export function NavProjects({
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [target, setTarget] = useState<Project | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [renameOpen, setRenameOpen] = useState(false);
+  const [isRenaming, setIsRenaming] = useState(false);
+
+  const handleRenameMarketplace = (item: Project) => {
+    setTarget(item);
+    setRenameOpen(true);
+  };
+
+  const handleAskDelete = (item: Project) => {
+    setTarget(item);
+    setDeleteOpen(true);
+  };
+
+  const doRename = async (newName: string) => {
+    if (!target?.dbId) return;
+    setIsRenaming(true);
+    try {
+      await renameMarketplaceAction({ id: target.dbId, newName });
+      setRenameOpen(false);
+      toast.success(`Marketplace renamed to "${newName}"`);
+      router.refresh();
+    } catch (e: any) {
+      toast.error("Couldn’t rename", {
+        description: e?.message ?? "Try again.",
+      });
+    } finally {
+      setIsRenaming(false);
+    }
+  };
 
   const doDelete = async () => {
     if (!target) return;
@@ -62,6 +93,7 @@ export function NavProjects({
       router.refresh();
     } finally {
       setIsDeleting(false);
+      toast.success(`Marketplace "${target.name}" deleted`);
     }
   };
 
@@ -113,13 +145,15 @@ export function NavProjects({
                       <Forward className="text-muted-foreground" />
                       <span>Share Marketplace</span>
                     </DropdownMenuItem>
-                    <DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => handleRenameMarketplace(item)}
+                    >
                       <Pencil className="text-muted-foreground" />
                       <span>Rename Marketplace</span>
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem
-                      onClick={doDelete}
+                      onClick={() => handleAskDelete(item)}
                       className="text-destructive focus:text-destructive"
                     >
                       <Trash2 className="text-muted-foreground" />
@@ -140,6 +174,14 @@ export function NavProjects({
         marketplaceName={target?.name || target?.label || ""}
         onConfirm={doDelete}
         isLoading={isDeleting}
+      />
+      <RenameMarketplaceDialog
+        open={renameOpen}
+        onOpenChange={setRenameOpen}
+        marketplaceName={target?.name || target?.label || ""}
+        existingNames={projects.map((p) => p.name)}
+        onConfirm={doRename}
+        isLoading={isRenaming}
       />
     </SidebarGroup>
   );
