@@ -23,7 +23,10 @@ import { IconType } from "./app-sidebar";
 import * as React from "react";
 import { useState } from "react";
 import DeleteMarketplaceDialog from "@/components/dialogs/DeleteMarketplaceDialog";
-import { deleteMarketplaceAction, renameMarketplaceAction } from "@/app/(protected)/marketplaces/actions";
+import {
+  deleteMarketplaceAction,
+  renameMarketplaceAction,
+} from "@/app/(protected)/marketplaces/actions";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import RenameMarketplaceDialog from "../dialogs/RenameMarketplaceDialog";
@@ -116,7 +119,7 @@ export function NavProjects({
           projects.map((item) => {
             const text = item.name || item.label || "Untitled";
             return (
-              <SidebarMenuItem key={item.connectionId}>
+              <SidebarMenuItem key={item.connectionId} className="max-w-55">
                 <SidebarMenuButton asChild tooltip={text}>
                   <Link
                     href={{

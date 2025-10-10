@@ -1,14 +1,7 @@
 "use client";
 
 import * as React from "react";
-import {
-  Upload,
-  Table,
-  ReceiptText,
-  Download,
-  Plus,
-  Star,
-} from "lucide-react";
+import { Upload, Table, ReceiptText, Download, Plus, Star } from "lucide-react";
 import { NavMain } from "@/components/local/nav-main";
 import { NavProjects } from "@/components/local/nav-projects";
 import { NavUser } from "@/components/local/nav-user";
@@ -34,9 +27,9 @@ export type SidebarUser = {
 export type IconType = React.ElementType;
 
 export type ConnectedMarketplace = {
-  id: string;      
-  dbId?: string;        
-  connectionId?: string; 
+  id: string;
+  dbId?: string;
+  connectionId?: string;
   name: string;
   label: string;
   url: string;
@@ -106,7 +99,7 @@ export function AppSidebar({
           onClick={() => onAddMarketplace?.()}
           className="cursor-pointer w-full bg-gradient-to-r from-blue-500 via-blue-600 to-blue-800 h-15 text-white rounded-none text-sm font-bold hover:text-white text-center group-data-[collapsible=icon]:bg-none group-data-[collapsible=icon]:text-black group-data-[collapsible=icon]:hover:text-black hover:from-blue-800 hover:via-blue-600 hover:to-blue-500"
         >
-          <Plus className="me-2 h-4 w-4" />
+          <Plus className="me-2 h-5 w-5" />
           {state === "expanded" ? "Add a Marketplace" : null}
         </SidebarMenuButton>
         <NavProjects projects={connectedMarketplaces} />
@@ -117,7 +110,7 @@ export function AppSidebar({
           className="flex justify-center group-data-[collapsible=icon]:justify-normal "
         >
           <Link href={data.upgrade.url}>
-            <Star className="me-2 h-4 w-4" />
+            <Star className="me-2 h-5 w-5" />
             {state === "expanded" ? data.upgrade.title : null}
           </Link>
         </SidebarMenuButton>
