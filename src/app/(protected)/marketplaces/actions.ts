@@ -1,7 +1,6 @@
 // app/(whatever)/marketplaces/actions.ts
 "use server";
 
-import { requireUser } from "@/lib/auth";
 import { createClient } from "@/lib/supabase/server";
 
 export async function selectMarketplaceAction() {

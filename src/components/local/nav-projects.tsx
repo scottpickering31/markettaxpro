@@ -119,7 +119,12 @@ export function NavProjects({
           projects.map((item) => {
             const text = item.name || item.label || "Untitled";
             return (
-              <SidebarMenuItem key={item.connectionId} className="max-w-55">
+              <SidebarMenuItem
+                key={
+                  item.dbId ?? item.connectionId ?? `${item.id}:${item.name}`
+                }
+                className="max-w-55"
+              >
                 <SidebarMenuButton asChild tooltip={text}>
                   <Link
                     href={{
