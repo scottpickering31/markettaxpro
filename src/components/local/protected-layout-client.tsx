@@ -22,6 +22,8 @@ import Amazon from "@/components/svgs/amazon.svg";
 import Ebay from "@/components/svgs/ebay.svg";
 import Etsy from "@/components/svgs/etsy.svg";
 import Shopify from "@/components/svgs/shopify.svg";
+import { useSearchParams, useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 type Platform = "ebay" | "etsy" | "shopify" | "amazon-handmade";
 
@@ -79,6 +81,26 @@ export default function ProtectedLayoutClient({
   const [isMarketplaceDialogOpen, setIsMarketplaceDialogOpen] =
     React.useState(false);
 
+  const params = useSearchParams();
+  const router = useRouter();
+  const error = params.get("ebay_error");
+  const connected = params.get("connected");
+
+  React.useEffect(() => {
+    if (error) {
+      if (error === "already_connected") {
+        toast.error("This eBay store is already connected.");
+        console.log("already connected");
+      } else if (error === "token_exchange_failed") {
+        toast.error("Could not authenticate with eBay. Please try again.");
+      } else if (error === "identity_failed") {
+        toast.error("Could not identify your eBay account.");
+      } else {
+        toast.error("Unknown error occurred.");
+      }
+    }
+  }, [error, connected, router]);
+
   // Enrich rows with UI metadata (including the icon component) **on the client**
   const connectedFromDb = React.useMemo<ConnectedMarketplace[]>(
     () =>
@@ -99,11 +121,6 @@ export default function ProtectedLayoutClient({
     [connectedRows]
   );
 
-  const existingNames = React.useMemo(
-    () => connectedFromDb.map((m) => m.name),
-    [connectedFromDb]
-  );
-
   return (
     <SidebarProvider>
       <AppSidebar
@@ -119,9 +136,8 @@ export default function ProtectedLayoutClient({
           id,
           name: "",
           label: meta.label,
-          description: meta.description, // add if needed
+          description: meta.description,
         }))}
-        existingConnectionNames={existingNames}
       />
 
       <SidebarInset>

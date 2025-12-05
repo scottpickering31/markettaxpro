@@ -24,8 +24,6 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  console.log("MW user:" + user?.email);
-
   const { pathname } = request.nextUrl;
 
   const isPublic =
@@ -42,12 +40,14 @@ export async function updateSession(request: NextRequest) {
   if (!user && !isPublic) {
     const url = request.nextUrl.clone();
     url.pathname = "/sign-in";
-    console.log("MW redirect:", url.pathname);
-
     url.searchParams.set("next", pathname + request.nextUrl.search);
-    return NextResponse.redirect(url);
+
+    const redirect = NextResponse.redirect(url);
+    response.cookies.getAll().forEach((c) => {
+      redirect.cookies.set(c);
+    });
+    return redirect;
   }
 
-  console.log("MW hit:", request.nextUrl.pathname);
   return response;
 }

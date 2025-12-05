@@ -126,7 +126,7 @@ export default function SignInWizard() {
           return;
         }
         clearPassword();
-        router.replace("/"); // ✅ only redirect after success
+        router.replace("/dashboard"); // ✅ only redirect after success
       });
     } else {
       // New user → send OTP, then go to OTP step
@@ -182,7 +182,7 @@ export default function SignInWizard() {
       }
 
       // 3) Redirect after success
-      router.replace("/");
+      router.replace("/dashboard");
     });
   }
 
