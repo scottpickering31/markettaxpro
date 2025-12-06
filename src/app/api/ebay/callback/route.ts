@@ -67,6 +67,7 @@ export async function GET(req: NextRequest) {
     }
 
     const tokenJson = await tokenResp.json();
+    console.log("[ebay/callback] tokenJson:", tokenJson);
     const accessToken: string = tokenJson.access_token;
     const refreshToken: string | undefined = tokenJson.refresh_token;
     const expiresIn: number = tokenJson.expires_in;
