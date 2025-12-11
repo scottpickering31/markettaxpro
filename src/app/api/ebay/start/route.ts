@@ -35,7 +35,7 @@ export async function GET() {
 
   // Persist verifier + state in cookies (HTTPOnly) or your session store.
   const res = NextResponse.redirect(
-    `https://auth.sandbox.ebay.com/oauth2/authorize` +
+    `https://auth.ebay.com/oauth2/authorize` +
       `?client_id=${encodeURIComponent(clientId)}` +
       `&redirect_uri=${encodeURIComponent(ruName)}` +
       `&response_type=code` +

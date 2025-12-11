@@ -17,7 +17,7 @@ export default async function SummaryPage() {
   const expenseTotals = sumExpenses({
     feesPence: 65000,
     shippingLabelsPence: 30000,
-    cogsPence: 50000,
+    cogsPence: 50000, 
     manualPence: 20000,
   });
   const result = computeSummary({ grossSalesPence: 521200, expenseTotals });

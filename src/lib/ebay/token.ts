@@ -9,9 +9,11 @@ export async function refreshEbayTokenIfNeeded(row: {
   const soon = Date.now() + 2 * 60 * 1000;
   if (new Date(token_expires_at).getTime() > soon) return null; // still valid
 
-  const env = process.env.EBAY_ENV === "sandbox" ? "sandbox" : "prod";
-  const tokenEndpoint = `https://api.${env === "sandbox" ? "sandbox." : ""}ebay.com/identity/v1/oauth2/token`;
-  const basic = Buffer.from(`${process.env.EBAY_CLIENT_ID}:${process.env.EBAY_CLIENT_SECRET}`).toString("base64");
+  const env = process.env.EBAY_API_URI;
+  const tokenEndpoint = `${env}/identity/v1/oauth2/token`;
+  const basic = Buffer.from(
+    `${process.env.EBAY_CLIENT_ID}:${process.env.EBAY_CLIENT_SECRET}`
+  ).toString("base64");
 
   const body = new URLSearchParams({
     grant_type: "refresh_token",
